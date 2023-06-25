@@ -1,5 +1,5 @@
 CXX = clang++
-CXXFLAGS = -Wall -Wextra -g
+CXXFLAGS = -Wall -Wextra -g -std=c++11
 CXXFLAGS += -Iinclude
 
 SRC_DIR = src
@@ -17,7 +17,7 @@ dirs:
 	mkdir -p ./$(BIN) ./$(OBJS_DIR)
 
 run: all
-	$(BIN)/lang
+	$(BIN)/lang "TestFile.lang"
 
 lang: $(OBJ)
 	$(CXX) -o $(BIN)/lang $^ 
@@ -26,4 +26,4 @@ $(OBJS_DIR)/%.o: $(SRC_DIR)/%.cpp
 	$(CXX) -o $@ -c $< $(CXXFLAGS)
 
 clean:
-	rm -rf $(BIN) $(OBJ)
+	rm -rf $(BIN)/lang $(OBJ)
