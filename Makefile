@@ -17,7 +17,7 @@ dirs:
 	mkdir -p ./$(BIN) ./$(OBJS_DIR)
 
 run: all
-	$(BIN)/lang "TestFile.lang"
+	$(BIN)/lang $(BIN)/"TestFile.lang"
 
 lang: $(OBJ)
 	$(CXX) -o $(BIN)/lang $^ 

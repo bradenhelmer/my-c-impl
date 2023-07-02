@@ -19,3 +19,11 @@ typedef struct {
   char *end;
   unsigned length;
 } Token;
+
+static bool isPrintable(TokenKind kind) {
+  return kind == NUMERIC_LITERAL || kind == STRING_LITERAL ||
+         kind == IDENTIFIER;
+}
+static const std::string getTokenName(TokenKind kind) {
+  return TokenNames[kind];
+}

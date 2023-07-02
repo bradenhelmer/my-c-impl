@@ -6,4 +6,4 @@
 
 #define ASSERT(X) assert(X)
 
-#define SIMPLE_PRINT(X) std::cout << X << std::endl
+#define PRINT(X) std::cout << X << std::endl

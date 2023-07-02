@@ -1,16 +1,26 @@
 // Lexer.h
 // ~~~~~~~
 // Lexer definition
+#include <vector>
+
 #include "Token.h"
 
 class Lexer {
 public:
-  static Token currentToken;
   void advanceToken();
-  Lexer(char *buffer);
+  Token getCurrentToken() const { return currentToken; }
+  void lexAndPrintTokens();
+  void printToken(int num);
+  Lexer(std::vector<char> *buffer);
 
 private:
-  char *buffer;
+  Token currentToken;
+  std::vector<char> *buffer;
   void lexNumericLiteral();
-  void lexStringLiteral();
+  void lexIdentifier();
+  void skipWhiteSpace();
+  char *bufPtr;
+  static bool isWhiteSpace(const char c) {
+    return c == '\t' || c == ' ' || c == '\v' || c == '\f';
+  }
 };

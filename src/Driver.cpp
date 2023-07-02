@@ -1,7 +1,6 @@
 // Driver.cpp
 // ~~~~~~~~~~
 // Driver implementation.
-#include "Driver.h"
 
 #include <cassert>
 #include <filesystem>
@@ -10,6 +9,8 @@
 #include <iterator>
 
 #include "Common.h"
+#include "Driver.h"
+#include "Lexer.h"
 
 std::vector<char> Driver::processInputFile() {
   std::ifstream sourceFile(fileName);
@@ -23,8 +24,7 @@ std::vector<char> Driver::processInputFile() {
 }
 
 void Driver::executeToolchain() {
-  std::vector<char> source = processInputFile();
-  for (auto it = source.begin(); it != source.end(); ++it) {
-    SIMPLE_PRINT(*it);
-  }
+  std::vector<char> buf = processInputFile();
+  Lexer lexer(&buf);
+  lexer.lexAndPrintTokens();
 }
