@@ -1,12 +1,10 @@
-// Driver.cpp
+/// Driver.cpp
 // ~~~~~~~~~~
 // Driver implementation.
 
 #include <cassert>
 #include <filesystem>
 #include <fstream>
-#include <iostream>
-#include <iterator>
 
 #include "Common.h"
 #include "Driver.h"
@@ -16,9 +14,11 @@ std::vector<char> Driver::processInputFile() {
   std::ifstream sourceFile(fileName);
   ASSERT(sourceFile.is_open());
 
+  char curr;
   std::vector<char> source;
-  std::copy(std::istream_iterator<char>(sourceFile),
-            std::istream_iterator<char>(), std::back_inserter(source));
+  while(sourceFile.get(curr)) {
+    source.push_back(curr);
+  }
   sourceFile.close();
   return source;
 }

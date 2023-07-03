@@ -1,5 +1,4 @@
 // Token Macro Defintions
-
 #ifndef TOKEN
 #define TOKEN(X)
 #endif
@@ -27,3 +26,4 @@ TOKEN_PUNCTUATOR(MODULO, '%')
 
 #undef TOKEN
 #undef TOKEN_PUNCTUATOR
+

@@ -1,4 +1,6 @@
 // Token header file
+#ifndef TOKEN_H
+#define TOKEN_H
 #include <string>
 
 // Token enums
@@ -27,3 +29,5 @@ static bool isPrintable(TokenKind kind) {
 static const std::string getTokenName(TokenKind kind) {
   return TokenNames[kind];
 }
+
+#endif // TOKEN_H
