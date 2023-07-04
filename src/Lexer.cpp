@@ -9,7 +9,7 @@
 
 Lexer::Lexer(std::vector<char> *buffer) : buffer(buffer) {
   currentToken = {
-      .kind = UNKNOWN,
+      .kind = unknown,
       .start = nullptr,
       .end = nullptr,
       .length = 0,
@@ -28,35 +28,35 @@ void Lexer::advanceToken() {
   switch (*bufPtr) {
   case 0:
     if (bufPtr == &*buffer->end()) {
-      currentToken.kind = EOF;
+      currentToken.kind = eof;
       break;
     }
   case '(':
-    currentToken.kind = O_PAREN;
+    currentToken.kind = o_paren;
     break;
   case ')':
-    currentToken.kind = C_PAREN;
+    currentToken.kind = c_paren;
     break;
   case '{':
-    currentToken.kind = O_BRACE;
+    currentToken.kind = o_brace;
     break;
   case '}':
-    currentToken.kind = C_BRACE;
+    currentToken.kind = c_brace;
     break;
   case '+':
-    currentToken.kind = ADD;
+    currentToken.kind = add;
     break;
   case '-':
-    currentToken.kind = SUB;
+    currentToken.kind = sub;
     break;
   case '*':
-    currentToken.kind = MULT;
+    currentToken.kind = mult;
     break;
   case '/':
-    currentToken.kind = DIV;
+    currentToken.kind = divide;
     break;
   case '%':
-    currentToken.kind = MODULO;
+    currentToken.kind = modulo;
     break;
   case '0':
   case '1':
@@ -68,7 +68,7 @@ void Lexer::advanceToken() {
   case '7':
   case '8':
   case '9':
-    currentToken.kind = NUMERIC_LITERAL;
+    currentToken.kind = numeric_literal;
     break;
   case 'A':
   case 'B':
@@ -119,15 +119,15 @@ void Lexer::advanceToken() {
   case 'y':
   case 'z':
   case '_':
-    currentToken.kind = IDENTIFIER;
+    currentToken.kind = identifier;
     break;
   default:
-    currentToken.kind = UNKNOWN;
+    currentToken.kind = unknown;
     break;
   }
-  if (currentToken.kind == NUMERIC_LITERAL) {
+  if (currentToken.kind == numeric_literal) {
     return lexNumericLiteral();
-  } else if (currentToken.kind == IDENTIFIER) {
+  } else if (currentToken.kind == identifier) {
     return lexIdentifier();
   } else {
     bufPtr++;
@@ -148,13 +148,17 @@ void Lexer::lexIdentifier() {
     currentToken.length++;
   }
   currentToken.end = bufPtr - 1;
+  std::string ident(currentToken.start, currentToken.end + 1);
+  if (isKeyword(ident)) {
+    currentToken.kind = getKeywordToken(ident);
+  }
 }
 
 void Lexer::lexAndPrintTokens() {
   std::cout << "Lexing Tokens\n-------------\n";
   advanceToken();
   int count = 1;
-  while (currentToken.kind != EOF) {
+  while (currentToken.kind != eof) {
     printToken(count++);
     advanceToken();
   }

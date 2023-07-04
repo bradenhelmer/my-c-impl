@@ -9,6 +9,7 @@
 #include "Common.h"
 #include "Driver.h"
 #include "Lexer.h"
+#include "Token.h"
 
 std::vector<char> Driver::processInputFile() {
   std::ifstream sourceFile(fileName);
@@ -16,7 +17,7 @@ std::vector<char> Driver::processInputFile() {
 
   char curr;
   std::vector<char> source;
-  while(sourceFile.get(curr)) {
+  while (sourceFile.get(curr)) {
     source.push_back(curr);
   }
   sourceFile.close();
