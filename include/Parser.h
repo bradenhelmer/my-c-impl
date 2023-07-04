@@ -13,9 +13,10 @@ class Parser {
 
 public:
   Parser(Lexer &lex) : lex(lex) {}
-  std::unique_ptr<ExprAST> ParseProgram();
+  std::unique_ptr<ExprAST> parseProgram();
 
 private:
+  std::unique_ptr<ExprAST> parseExpression();
 };
 
 #endif // PARSER_H
