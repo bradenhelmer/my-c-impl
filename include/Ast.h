@@ -6,29 +6,17 @@
 #include <string>
 #include <vector>
 
+#include "Token.h"
+
 class AstNode {
  public:
   virtual ~AstNode() = default;
 };
 
-class StmtAST : public AstNode {};
-
-class BlockAST : public AstNode {
-  std::vector<std::unique_ptr<StmtAST>> stmts;
-
- public:
-  BlockAST(std::vector<std::unique_ptr<StmtAST>> stmts)
-      : stmts(std::move(stmts)) {}
-};
-
 class ExprAST : public AstNode {};
 
-class ExprStmtAST : public StmtAST {
-  std::unique_ptr<ExprAST> expr;
+class DeclAST : public AstNode {};
 
- public:
-  ExprStmtAST(std::unique_ptr<ExprAST> expr) : expr(std::move(expr)) {}
-};
 class NumberExprAST : public ExprAST {
   double value;
 
@@ -36,20 +24,39 @@ class NumberExprAST : public ExprAST {
   NumberExprAST(double value) : value(value) {}
 };
 
-class VariableExprAST : public ExprAST {
-  std::string name, type;
+class VariableDeclInitAST : public DeclAST {
+  TokenKind type;
+  std::string name;
+  std::unique_ptr<ExprAST> expr;
 
  public:
-  VariableExprAST(const std::string &name, const std::string &type)
-      : name(name), type(type) {}
+  VariableDeclInitAST(TokenKind type, const std::string name,
+                      std::unique_ptr<ExprAST> expr)
+      : type(type), name(name), expr(std::move(expr)) {}
+};
+
+class VariableDeclAST : public DeclAST {
+  TokenKind type;
+  std::string name;
+
+ public:
+  VariableDeclAST(TokenKind type, const std::string name)
+      : type(type), name(name) {}
+};
+
+class VariableAST : public ExprAST {
+  std::string name;
+
+public: 
+  VariableAST(const std::string name) : name(name) {}
 };
 
 class BinaryExprAST : public ExprAST {
-  char op;
+  TokenKind op;
   std::unique_ptr<ExprAST> left, right;
 
  public:
-  BinaryExprAST(char op, std::unique_ptr<ExprAST> left,
+  BinaryExprAST(TokenKind op, std::unique_ptr<ExprAST> left,
                 std::unique_ptr<ExprAST> right)
       : op(op), left(std::move(left)), right(std::move(right)) {}
 };
@@ -64,18 +71,19 @@ class CallExprAST : public ExprAST {
       : callee(callee), args(std::move(args)) {}
 };
 
-class PrototypeAST {
+class PrototypeAST : public DeclAST {
+  TokenKind type;
   std::string name;
-  std::map<std::string, std::string> args;
+  std::map<std::string, TokenKind> args;
 
  public:
-  PrototypeAST(const std::string &name,
-               std::map<std::string, std::string> args)
-      : name(name), args(std::move(args)) {}
+  PrototypeAST(TokenKind type, const std::string &name,
+               std::map<std::string, TokenKind> args)
+      : type(type), name(name), args(std::move(args)) {}
   const std::string &getName() const { return name; }
 };
 
-class FunctionAST {
+class FunctionAST : public DeclAST {
   std::unique_ptr<PrototypeAST> proto;
   std::unique_ptr<ExprAST> body;
 

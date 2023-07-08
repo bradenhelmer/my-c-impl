@@ -1,0 +1,95 @@
+Modified C99 Grammar - Braden Helmer - July 6th, 2023
+
+DECLARATIONS
+------------
+1. program -> declList
+
+2. declList -> declList decl | decl
+
+3. decl -> varDecl | funDecl
+
+4. varDecl -> primType varDeclInit;
+
+5. varDeclInit -> varDeclId | varDeclId = simpleExpr
+
+6. varDeclId -> IDENTIFIER | IDENTIFIER[NUMCONST]
+
+7. primType -> int | bool | char
+
+FUNCTIONS
+---------
+8. funDecl -> primType IDENTIFIER(params) blockStmt | IDENTIFIER(params) blockStmt
+
+9. params -> paramList | E
+
+10. paramList -> paramList, param | param
+
+11. param -> primType paramId
+
+12. paramId -> IDENTIFIER | IDENTIFIER[NUMCONST]
+
+STATEMENTS
+----------
+13. stmt -> exprStmt | blockStmt | condStmt | iterStmt | returnStmt | breakStmt
+
+14. exprStmt -> expr; | ;
+
+15. blockStmt -> { localDecls stmtList }
+
+16. localDecls -> localDecls varDecl | E
+
+17. stmtList -> stmtList stmt | E
+
+18. condStmt -> if (simpleExpr) blockStmt | if (simpleExpr) blockStmt else blockStmt
+
+19. iterStmt -> while(simpleExpr) blockStmt | for (simpleExpr; simpleExpr; simpleExpr) blockStmt
+
+20. returnStmt -> return; | return expr;
+
+21. breakStmt -> break;
+
+EXPRESSIONS
+-----------
+22. expr -> mutable = expr | mutable += expr | mutable -= expr | mutable *= expr |
+        mutable /= expr | mutable++ | mutable-- | simpleExpr
+
+23. simpleExpr -> simpleExpr || andExpr | andExpr
+
+24. andExpr -> andExpr && unaryRelExpr | unaryRelExpr
+
+25. unaryRelExpr -> !unaryRelExpr | relExpr
+
+26. relExpr -> additiveExpr relOp sumExpr | additiveExpr
+
+27. relOp -> <= | < | > | >= | == | !=
+
+28. additiveExpr -> additiveExpr addOp multiplicativeExp | multiplicativeExp
+
+29 addOp -> + | -
+
+30. multiplicativeExp -> multiplicativeExp multOp powExpr | powExpr
+
+31. multOp -> * | / | %
+
+32. powExpr -> unaryExpr ^ powExpr | unaryExpr
+
+33. unaryExpr -> unaryOp unaryExpr | factor
+
+34. unaryOp -> - | *
+
+35. factor -> immutable | mutable
+
+36. mutable -> IDENTIFIER | IDENTIFIER[expr]
+
+37. immutable -> (expr) | call | constant 
+
+38. call -> IDENTIFIER(args)
+
+39. args -> argList | E
+
+40. argList -> argList, expr | expr
+
+41. constant -> NUMCONST | CHARCONST | STRINGCONST | true | false
+
+
+

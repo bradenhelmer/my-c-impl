@@ -9,6 +9,7 @@
 #include "Common.h"
 #include "Driver.h"
 #include "Lexer.h"
+#include "Parser.h"
 #include "Token.h"
 
 std::vector<char> Driver::processInputFile() {
@@ -27,5 +28,6 @@ std::vector<char> Driver::processInputFile() {
 void Driver::executeToolchain() {
   std::vector<char> buf = processInputFile();
   Lexer lexer(&buf);
-  lexer.lexAndPrintTokens();
+  Parser parser(lexer); 
+  std::unique_ptr<AstNode> ast = parser.parseProgram();
 }

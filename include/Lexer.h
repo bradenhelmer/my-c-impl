@@ -10,9 +10,11 @@
 class Lexer {
 public:
   void advanceToken();
-  Token getCurrentToken() const { return currentToken; }
+  Token *getCurrentToken() { return &currentToken; }
   void lexAndPrintTokens();
   void printToken(int num);
+  std::string getIdentifier();
+  double getNumericLiteral();
   Lexer(std::vector<char> *buffer);
 
 private:

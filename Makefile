@@ -1,5 +1,5 @@
 CXX = clang++
-CXXFLAGS = -Wall -Wextra -g -std=c++11
+CXXFLAGS = -g -std=c++14
 CXXFLAGS += -Iinclude
 
 SRC_DIR = src

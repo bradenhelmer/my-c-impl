@@ -10,15 +10,15 @@ enum TokenKind : unsigned short {
 #define TOKEN(X) X,
 #include "TokenDefs.h"
   NUM_TOKENS
-};
+  };
 
 static const std::string TokenNames[NUM_TOKENS] = {
 #define TOKEN(X) #X,
 #include "TokenDefs.h"
 };
 
-static const std::map<std::string, TokenKind> keywords = {
-#define TOKEN_KEYWORD(X) {#X, kw_##X},
+static const std::map<std::string, TokenKind> typeKeywords = {
+#define TOKEN_KEYWORD_TYPE(X) {#X, kwt_##X},
 #include "TokenDefs.h"
 };
 
@@ -36,13 +36,21 @@ static const std::string getTokenName(TokenKind kind) {
   return TokenNames[kind];
 }
 
-static bool isKeyword(std::string ident) {
-  auto kw = keywords.find(ident);
-  return kw != keywords.end();
+static bool isTypeKeyword(std::string ident) {
+  auto kw = typeKeywords.find(ident);
+  return kw != typeKeywords.end();
 }
 
-static TokenKind getKeywordToken(std::string ident) {
-  return keywords.at(ident);
+static bool isTypeKeyword(TokenKind kind) {
+  switch(kind) {
+    default: return false;
+    case kwt_char:
+    case kwt_int: return true;
+  } 
+}
+
+static TokenKind getTypeKeywordToken(std::string ident) {
+  return typeKeywords.at(ident);
 }
 
 #endif // TOKEN_H
