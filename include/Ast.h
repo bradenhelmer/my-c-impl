@@ -9,7 +9,7 @@
 #include "Token.h"
 
 class AstNode {
- public:
+public:
   virtual ~AstNode() = default;
 };
 
@@ -20,7 +20,7 @@ class DeclAST : public AstNode {};
 class NumberExprAST : public ExprAST {
   double value;
 
- public:
+public:
   NumberExprAST(double value) : value(value) {}
 };
 
@@ -29,7 +29,7 @@ class VariableDeclInitAST : public DeclAST {
   std::string name;
   std::unique_ptr<ExprAST> expr;
 
- public:
+public:
   VariableDeclInitAST(TokenKind type, const std::string name,
                       std::unique_ptr<ExprAST> expr)
       : type(type), name(name), expr(std::move(expr)) {}
@@ -39,7 +39,7 @@ class VariableDeclAST : public DeclAST {
   TokenKind type;
   std::string name;
 
- public:
+public:
   VariableDeclAST(TokenKind type, const std::string name)
       : type(type), name(name) {}
 };
@@ -47,7 +47,7 @@ class VariableDeclAST : public DeclAST {
 class VariableAST : public ExprAST {
   std::string name;
 
-public: 
+public:
   VariableAST(const std::string name) : name(name) {}
 };
 
@@ -55,7 +55,7 @@ class BinaryExprAST : public ExprAST {
   TokenKind op;
   std::unique_ptr<ExprAST> left, right;
 
- public:
+public:
   BinaryExprAST(TokenKind op, std::unique_ptr<ExprAST> left,
                 std::unique_ptr<ExprAST> right)
       : op(op), left(std::move(left)), right(std::move(right)) {}
@@ -65,7 +65,7 @@ class CallExprAST : public ExprAST {
   std::string callee;
   std::vector<std::unique_ptr<ExprAST>> args;
 
- public:
+public:
   CallExprAST(const std::string &callee,
               std::vector<std::unique_ptr<ExprAST>> args)
       : callee(callee), args(std::move(args)) {}
@@ -76,7 +76,7 @@ class PrototypeAST : public DeclAST {
   std::string name;
   std::map<std::string, TokenKind> args;
 
- public:
+public:
   PrototypeAST(TokenKind type, const std::string &name,
                std::map<std::string, TokenKind> args)
       : type(type), name(name), args(std::move(args)) {}
@@ -87,7 +87,7 @@ class FunctionAST : public DeclAST {
   std::unique_ptr<PrototypeAST> proto;
   std::unique_ptr<ExprAST> body;
 
- public:
+public:
   FunctionAST(std::unique_ptr<PrototypeAST> proto,
               std::unique_ptr<ExprAST> body)
       : proto(std::move(proto)), body(std::move(body)) {}

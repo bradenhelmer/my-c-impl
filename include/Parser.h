@@ -13,16 +13,15 @@ class Parser {
   Lexer lex;
   Token *currTok;
 
- public:
+public:
   Parser(Lexer &lex) : lex(lex) {}
   std::unique_ptr<AstNode> parseProgram();
-  template <typename T>
-  static std::unique_ptr<T> LogError(const char *str);
+  template <typename T> static std::unique_ptr<T> LogError(const char *str);
 
- private:
+private:
   void advanceCurrent();
-  std::unique_ptr<BinaryExprAST> parseBinaryExpression(
-      int precedence, std::unique_ptr<ExprAST> left);
+  std::unique_ptr<BinaryExprAST>
+  parseBinaryExpression(int precedence, std::unique_ptr<ExprAST> left);
   std::unique_ptr<ExprAST> parseExpression();
   std::unique_ptr<ExprAST> parseIdentifierExpr();
   std::unique_ptr<NumberExprAST> parseNumberExpr();
@@ -31,4 +30,4 @@ class Parser {
   std::map<std::string, TokenKind> parseArgs();
 };
 
-#endif  // PARSER_H
+#endif // PARSER_H

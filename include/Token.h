@@ -10,15 +10,15 @@ enum TokenKind : unsigned short {
 #define TOKEN(X) X,
 #include "TokenDefs.h"
   NUM_TOKENS
-  };
+};
 
 static const std::string TokenNames[NUM_TOKENS] = {
 #define TOKEN(X) #X,
 #include "TokenDefs.h"
 };
 
-static const std::map<std::string, TokenKind> typeKeywords = {
-#define TOKEN_KEYWORD_TYPE(X) {#X, kwt_##X},
+static const std::map<std::string, TokenKind> keywords = {
+#define TOKEN_KEYWORD(X) {#X, kw_##X},
 #include "TokenDefs.h"
 };
 
@@ -30,27 +30,29 @@ typedef struct {
 } Token;
 
 static bool isPrintable(TokenKind kind) {
-  return kind == numeric_literal || kind == identifier;
+  return kind == num_const || kind == identifier;
 }
 static const std::string getTokenName(TokenKind kind) {
   return TokenNames[kind];
 }
 
-static bool isTypeKeyword(std::string ident) {
-  auto kw = typeKeywords.find(ident);
-  return kw != typeKeywords.end();
+static bool isKeyword(std::string ident) {
+  auto kw = keywords.find(ident);
+  return kw != keywords.end();
 }
 
 static bool isTypeKeyword(TokenKind kind) {
-  switch(kind) {
-    default: return false;
-    case kwt_char:
-    case kwt_int: return true;
-  } 
+  switch (kind) {
+  default:
+    return false;
+  case kw_char:
+  case kw_int:
+    return true;
+  }
 }
 
 static TokenKind getTypeKeywordToken(std::string ident) {
-  return typeKeywords.at(ident);
+  return keywords.at(ident);
 }
 
 #endif // TOKEN_H

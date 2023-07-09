@@ -28,6 +28,5 @@ std::vector<char> Driver::processInputFile() {
 void Driver::executeToolchain() {
   std::vector<char> buf = processInputFile();
   Lexer lexer(&buf);
-  Parser parser(lexer); 
-  std::unique_ptr<AstNode> ast = parser.parseProgram();
+  lexer.lexAndPrintTokens();
 }
