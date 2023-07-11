@@ -30,10 +30,16 @@ typedef struct {
 } Token;
 
 typedef struct {
-  const std::string idStr;
+  std::string idStr;
   bool isArray;
   unsigned size;
 } Identifier;
+
+typedef struct {
+  Identifier id;
+  TokenKind type;
+  short position;
+} FuncParam;
 
 inline static bool isPrintable(TokenKind kind) {
   return kind == num_const || kind == identifier;

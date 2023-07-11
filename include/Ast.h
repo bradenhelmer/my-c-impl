@@ -40,12 +40,11 @@ class VarDeclAST : public DeclAST {
 class PrototypeAST : public DeclAST {
   TokenKind type;
   Identifier id;
-  std::map<const std::string, TokenKind> args;
+  std::vector<FuncParam> args;
 
  public:
-  PrototypeAST(TokenKind type, Identifier id,
-               std::map<const std::string, TokenKind> args)
-      : id(std::move(id)), type(type), args(std::move(args)) {}
+  PrototypeAST(TokenKind type, Identifier id, std::vector<FuncParam> args)
+      : type(type), id(std::move(id)), args(std::move(args)) {}
 };
 
 class BlockStmtAST;

@@ -254,9 +254,9 @@ void Lexer::printToken(int num) {
 }
 
 Identifier Lexer::getIdentifier() {
-  Identifier id = {.idStr = std::string(currentToken.start, currentToken.end),
-                   .isArray = false};
-  advanceToken();
+  Identifier id = {
+      .idStr = std::string(currentToken.start, currentToken.end + 1),
+      .isArray = false};
 
   // Lex array id
   if (currentToken.kind == o_bracket) {
@@ -265,6 +265,8 @@ Identifier Lexer::getIdentifier() {
     id.size = getNumericLiteral();
     advanceToken();
     ASSERT(currentToken.kind == c_bracket);
+    id.isArray = true;
+    advanceToken();
   }
   return id;
 }

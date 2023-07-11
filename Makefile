@@ -13,7 +13,7 @@ OBJ = $(patsubst $(SRC_DIR)/%.cpp, $(OBJS_DIR)/%.o, $(SRC))
 
 .PHONY: all clean
 
-all: clean dirs lang
+all: fmt clean dirs lang
 
 dirs:
 	mkdir -p ./$(BIN) ./$(OBJS_DIR)

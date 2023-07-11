@@ -42,7 +42,15 @@ class Parser {
   std::unique_ptr<FuncDeclAST> parseFuncDecl(TokenKind kind,
                                              const Identifier &id);
 
-  std::unique_ptr<PrototypeAST> parseProtoType();
+  // Parse a function prototype
+  // IDENTIFIER(params)
+  //  params -> paramList | E
+  //  paramList -> paramList, param | param
+  //  param -> primType paramId
+  //  paramId -> IDENTIFIER | IDENTIFIER[NUMCONST]
+  std::unique_ptr<PrototypeAST> parseProtoType(TokenKind kind,
+                                               const Identifier &id);
+
   // Parse a variable declaration with or without initialization.
   // varDecl -> primType varDeclInit
   // varDeclInit -> varDeclId | varDeclId = simpleExpr
@@ -55,6 +63,10 @@ class Parser {
   //  mutable -= expr | mutable *= expr |
   //  mutable /= expr | mutable++ | mutable-- | simpleExpr
   std::unique_ptr<ExprAST> parseExpr();
+
+  // Parse a block statement
+  // blockStmt -> { localDecls stmtList }
+  std::unique_ptr<BlockStmtAST> parseBlockStmt();
 };
 
 #endif  // PARSER_H
