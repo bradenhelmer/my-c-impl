@@ -9,12 +9,12 @@
 class Driver {
   const std::string fileName;
 
-private:
+ private:
   std::vector<char> processInputFile();
 
-public:
+ public:
   Driver(const std::string fileName) : fileName(fileName) {}
   void executeToolchain();
 };
 
-#endif // DRIVER_H
+#endif  // DRIVER_H

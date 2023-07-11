@@ -8,20 +8,57 @@
 #include "Common.h"
 #include "Token.h"
 
-std::unique_ptr<AstNode> Parser::parseProgram() {
+std::unique_ptr<Program> Parser::parseProgram() {
+  // Advance current token to begin parsing.
   advanceCurrent();
-  switch (currTok->kind) {
-  case identifier:
-    return parseIdentifierExpr();
-  case kw_int:
-  case kw_char:
-    return parseDeclaration();
-  default:
-    return LogError<AstNode>("Error Parsing!");
+  return std::make_unique<Program>(parseDeclList());
+}
+
+std::vector<std::unique_ptr<DeclAST>> Parser::parseDeclList() {
+  std::vector<std::unique_ptr<DeclAST>> declList;
+  while (currTok->kind != eof) {
+    std::unique_ptr<DeclAST> decl = parseDecl();
+    declList.push_back(std::move(decl));
+  }
+  return declList;
+}
+
+std::unique_ptr<DeclAST> Parser::parseDecl() {
+  if (!isTypeKeyword(currTok->kind))
+    return LogError<DeclAST>("Expected type specifer!");
+  TokenKind kind = currTok->kind;
+  advanceCurrent();
+  if (!isIdentifer(currTok->kind))
+    return LogError<DeclAST>("Expected identifier!");
+
+  const Identifier id = lex.getIdentifier();
+  advanceCurrent();
+
+  // If token after identifier is an open parenthese,
+  // we know this is a function definition.
+  if (currTok->kind == o_paren) {
+    return parseFuncDecl(kind, id);
+  } else {
+    return parseVarDecl(kind, id);
   }
 }
 
-template <typename T> std::unique_ptr<T> Parser::LogError(const char *str) {
+std::unique_ptr<FuncDeclAST> Parser::parseFuncDecl(TokenKind kind,
+                                                   const Identifier &id) {}
+
+std::unique_ptr<VarDeclAST> Parser::parseVarDecl(TokenKind kind,
+                                                 const Identifier &id) {
+  if (currTok->kind == semi_colon) {
+    advanceCurrent();
+    return std::make_unique<VarDeclAST>(kind, id, nullptr);
+  } else if (currTok->kind == equal) {
+    advanceCurrent();
+    return std::make_unique<VarDeclAST>(kind, id, parseExpr());
+  }
+}
+
+template <typename T>
+std::unique_ptr<T> Parser::LogError(const char *str) {
   fprintf(stderr, "Error: %s\n", str);
   return nullptr;
 }
@@ -29,80 +66,4 @@ template <typename T> std::unique_ptr<T> Parser::LogError(const char *str) {
 void Parser::advanceCurrent() {
   lex.advanceToken();
   currTok = lex.getCurrentToken();
-}
-
-std::unique_ptr<BinaryExprAST>
-Parser::parseBinaryExpression(int precedence, std::unique_ptr<ExprAST> left) {}
-
-std::unique_ptr<ExprAST> Parser::parseExpression() {
-  std::unique_ptr<ExprAST> result;
-  switch (currTok->kind) {
-  case num_const:
-    return parseNumberExpr();
-  }
-}
-std::unique_ptr<ExprAST> Parser::parseIdentifierExpr() {
-  const std::string idStr = lex.getIdentifier();
-  advanceCurrent();
-  switch (currTok->kind) {
-  case equal:
-    break;
-  default:
-    return LogError<ExprAST>("Error parsing identifier expression.");
-  }
-}
-
-std::unique_ptr<DeclAST> Parser::parseDeclaration() {
-  const TokenKind type = currTok->kind;
-  advanceCurrent();
-  if (currTok->kind != identifier)
-    return LogError<DeclAST>("Expected Identifier");
-  const std::string idStr = lex.getIdentifier();
-  advanceCurrent();
-  switch (currTok->kind) {
-  case semi_colon:
-    advanceCurrent();
-    return std::make_unique<VariableDeclAST>(type, idStr);
-  case equal:
-    advanceCurrent();
-    return std::make_unique<VariableDeclInitAST>(type, idStr,
-                                                 parseExpression());
-  case o_paren:
-    advanceCurrent();
-    return parseProtoType();
-  default:
-    return LogError<DeclAST>("Error parsing declaration.");
-  }
-}
-
-std::unique_ptr<NumberExprAST> Parser::parseNumberExpr() {
-  ASSERT(currTok->kind == num_const);
-  auto result = std::make_unique<NumberExprAST>(lex.getNumericLiteral());
-  advanceCurrent();
-  return result;
-}
-
-std::unique_ptr<PrototypeAST> Parser::parseProtoType() {}
-
-std::map<std::string, TokenKind> Parser::parseArgs() {
-  std::map<std::string, TokenKind> args;
-  while (currTok->kind != c_paren) {
-    if (!isTypeKeyword(currTok->kind)) {
-      LogError<AstNode>(
-          "Unknown type encountered when parsing fucntion arguments.");
-      return args;
-    }
-    TokenKind type = currTok->kind;
-    advanceCurrent();
-    if (currTok->kind == identifier) {
-      std::string name = lex.getIdentifier();
-      args.insert({name, type});
-      advanceCurrent();
-      if (currTok->kind == comma) {
-        advanceCurrent();
-        continue;
-      }
-    }
-  }
-  return args;
 }

@@ -14,11 +14,11 @@ DECLARATIONS
 
 6. varDeclId -> IDENTIFIER | IDENTIFIER[NUMCONST]
 
-7. primType -> int | bool | char
+7. primType -> int | bool | char | void
 
 FUNCTIONS
 ---------
-8. funDecl -> primType IDENTIFIER(params) blockStmt | IDENTIFIER(params) blockStmt
+8. funDecl -> primType IDENTIFIER(params) blockStmt 
 
 9. params -> paramList | E
 

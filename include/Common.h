@@ -10,4 +10,4 @@
 
 #define PRINT(X) std::cout << X << std::endl
 
-#endif // COMMON_H
+#endif  // COMMON_H

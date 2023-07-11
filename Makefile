@@ -28,7 +28,7 @@ $(OBJS_DIR)/%.o: $(SRC_DIR)/%.cpp
 	$(CXX) -o $@ -c $< $(CXXFLAGS)
 
 fmt:
-	clang-format -i $(SRC) $(HEADERS)
+	clang-format -i  $(SRC) $(HEADERS)
 
 clean:
 	rm -rf $(BIN)/lang $(OBJ)

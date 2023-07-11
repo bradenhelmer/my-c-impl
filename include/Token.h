@@ -29,30 +29,40 @@ typedef struct {
   unsigned length;
 } Token;
 
-static bool isPrintable(TokenKind kind) {
+typedef struct {
+  const std::string idStr;
+  bool isArray;
+  unsigned size;
+} Identifier;
+
+inline static bool isPrintable(TokenKind kind) {
   return kind == num_const || kind == identifier;
 }
-static const std::string getTokenName(TokenKind kind) {
+
+inline static const std::string getTokenName(TokenKind kind) {
   return TokenNames[kind];
 }
 
-static bool isKeyword(std::string ident) {
+inline static bool isKeyword(std::string ident) {
   auto kw = keywords.find(ident);
   return kw != keywords.end();
 }
 
-static bool isTypeKeyword(TokenKind kind) {
+inline static bool isIdentifer(TokenKind kind) { return kind == identifier; }
+
+inline static bool isTypeKeyword(TokenKind kind) {
   switch (kind) {
-  default:
-    return false;
-  case kw_char:
-  case kw_int:
-    return true;
+    case kw_bool:
+    case kw_char:
+    case kw_int:
+      return true;
+    default:
+      return false;
   }
 }
 
-static TokenKind getTypeKeywordToken(std::string ident) {
+inline static TokenKind getKeywordToken(std::string ident) {
   return keywords.at(ident);
 }
 
-#endif // TOKEN_H
+#endif  // TOKEN_H

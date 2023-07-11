@@ -8,16 +8,16 @@
 #include "Token.h"
 
 class Lexer {
-public:
+ public:
   void advanceToken();
   Token *getCurrentToken() { return &currentToken; }
   void lexAndPrintTokens();
   void printToken(int num);
-  std::string getIdentifier();
+  Identifier getIdentifier();
   double getNumericLiteral();
   Lexer(std::vector<char> *buffer);
 
-private:
+ private:
   Token currentToken;
   std::vector<char> *buffer;
   void lexNumericLiteral();
@@ -28,4 +28,4 @@ private:
   }
 };
 
-#endif // LEXER_H
+#endif  // LEXER_H

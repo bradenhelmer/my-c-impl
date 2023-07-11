@@ -2,12 +2,13 @@
 // ~~~~~~~~~~
 // Driver implementation.
 
+#include "Driver.h"
+
 #include <cassert>
 #include <filesystem>
 #include <fstream>
 
 #include "Common.h"
-#include "Driver.h"
 #include "Lexer.h"
 #include "Parser.h"
 #include "Token.h"
@@ -28,5 +29,6 @@ std::vector<char> Driver::processInputFile() {
 void Driver::executeToolchain() {
   std::vector<char> buf = processInputFile();
   Lexer lexer(&buf);
-  lexer.lexAndPrintTokens();
+  Parser parser(lexer);
+  std::unique_ptr<Program> ast = parser.parseProgram();
 }
