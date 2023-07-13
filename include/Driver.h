@@ -15,6 +15,7 @@ class Driver {
  public:
   Driver(const std::string fileName) : fileName(fileName) {}
   void executeToolchain();
+  void printAST();
 };
 
 #endif  // DRIVER_H

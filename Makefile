@@ -1,6 +1,12 @@
 CXX = clang++
-CXXFLAGS = -g -std=c++14
+CXXFLAGS = -g
 CXXFLAGS += -Iinclude
+
+LLVM_LDFLAGS = $(shell llvm-config --system-libs --libs core)
+LLVM_CXXFLAGS = $(shell llvm-config --cxxflags)
+
+CXXFLAGS += $(LLVM_CXXFLAGS)
+LDFLAGS ?= $(LLVM_LDFLAGS)
 
 SRC_DIR = src
 INCLUDE_DIR = include
@@ -13,7 +19,7 @@ OBJ = $(patsubst $(SRC_DIR)/%.cpp, $(OBJS_DIR)/%.o, $(SRC))
 
 .PHONY: all clean
 
-all: fmt clean dirs lang
+all: clean dirs lang
 
 dirs:
 	mkdir -p ./$(BIN) ./$(OBJS_DIR)
@@ -22,10 +28,10 @@ run: all
 	$(BIN)/lang $(BIN)/"TestFile.lang"
 
 lang: $(OBJ)
-	$(CXX) -o $(BIN)/lang $^ 
+	$(CXX) $^ $(CXXFLAGS) $(LDFLAGS) -o $(BIN)/lang
 
 $(OBJS_DIR)/%.o: $(SRC_DIR)/%.cpp
-	$(CXX) -o $@ -c $< $(CXXFLAGS)
+	$(CXX) $(CXXFLAGS) -o $@ -c $< 
 
 fmt:
 	clang-format -i  $(SRC) $(HEADERS)

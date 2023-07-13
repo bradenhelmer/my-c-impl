@@ -4,14 +4,12 @@
 
 #include "Driver.h"
 
-#include <cassert>
 #include <filesystem>
 #include <fstream>
 
 #include "Common.h"
 #include "Lexer.h"
 #include "Parser.h"
-#include "Token.h"
 
 std::vector<char> Driver::processInputFile() {
   std::ifstream sourceFile(fileName);
@@ -31,4 +29,12 @@ void Driver::executeToolchain() {
   Lexer lexer(&buf);
   Parser parser(lexer);
   std::unique_ptr<Program> ast = parser.parseProgram();
+}
+
+void Driver::printAST() {
+  std::vector<char> buf = processInputFile();
+  Lexer lexer(&buf);
+  Parser parser(lexer);
+  std::unique_ptr<Program> ast = parser.parseProgram();
+  ast->print(0);
 }

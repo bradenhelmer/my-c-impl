@@ -1,8 +1,6 @@
 // ast.h
 // ~~~~~
 // Abstract Syntax Tree defintions
-#include <iostream>
-#include <map>
 #include <memory>
 #include <vector>
 
@@ -11,9 +9,13 @@
 class AstNode {
  public:
   virtual ~AstNode() = default;
+  virtual void print(int indentation) {}
 };
 
-class DeclAST : public AstNode {};
+class DeclAST : public AstNode {
+ public:
+  virtual void print(int indentation) override;
+};
 
 class ExprAST : public AstNode {};
 
@@ -25,6 +27,7 @@ class Program : public AstNode {
  public:
   Program(std::vector<std::unique_ptr<DeclAST>> declList)
       : declList(std::move(declList)) {}
+  virtual void print(int indentation) override;
 };
 
 class VarDeclAST : public DeclAST {
