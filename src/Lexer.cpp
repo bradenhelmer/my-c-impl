@@ -257,7 +257,7 @@ Identifier Lexer::getIdentifier() {
   Identifier id = {
       .idStr = std::string(currentToken.start, currentToken.end + 1),
       .isArray = false};
-
+  advanceToken();
   // Lex array id
   if (currentToken.kind == o_bracket) {
     advanceToken();

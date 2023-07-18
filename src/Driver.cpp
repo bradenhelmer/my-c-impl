@@ -36,5 +36,5 @@ void Driver::printAST() {
   Lexer lexer(&buf);
   Parser parser(lexer);
   std::unique_ptr<Program> ast = parser.parseProgram();
-  ast->print(0);
+  ast->print();
 }

@@ -32,7 +32,6 @@ std::unique_ptr<DeclAST> Parser::parseDecl() {
     return LogError<DeclAST>("Expected identifier!");
 
   const Identifier id = lex.getIdentifier();
-  advanceCurrent();
 
   // If token after identifier is an open parenthese,
   // we know this is a function definition.
