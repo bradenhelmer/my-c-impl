@@ -52,9 +52,10 @@ std::unique_ptr<PrototypeAST> Parser::parseProtoType(TokenKind kind,
   while (currTok->kind != c_paren) {
     if (currTok->kind == comma) advanceCurrent();
 
-    if (!isTypeKeyword(currTok->kind))
+    if (!isTypeKeyword(currTok->kind)) {
       return LogError<PrototypeAST>(
           "Expected type specifer when parsing function arguments!");
+    }
 
     currKind = currTok->kind;
     advanceCurrent();
@@ -64,7 +65,6 @@ std::unique_ptr<PrototypeAST> Parser::parseProtoType(TokenKind kind,
           "Expected identifier when parsing function arguments!");
     currId = lex.getIdentifier();
     params.push_back({.id = currId, .type = currKind, .position = pos});
-    advanceCurrent();
     pos++;
   }
   advanceCurrent();

@@ -21,6 +21,9 @@ OBJ = $(patsubst $(SRC_DIR)/%.cpp, $(OBJS_DIR)/%.o, $(SRC))
 
 all: clean dirs lang
 
+dbg: clean dirs lang
+	gdb -q --args $(BIN)/lang $(BIN)/"TestFile.lang"
+
 dirs:
 	mkdir -p ./$(BIN) ./$(OBJS_DIR)
 
