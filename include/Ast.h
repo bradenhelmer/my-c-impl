@@ -33,7 +33,7 @@ class Program : public AstNode {
   virtual std::string getTypeString() const override { return "Program"; }
 };
 
-class VarDeclAST : public DeclAST {
+class VarDeclAST : public DeclAST, public StmtAST {
   TokenKind type;
   Identifier id;
   std::unique_ptr<ExprAST> expr;
@@ -50,7 +50,7 @@ class VarDeclAST : public DeclAST {
   }
   std::string constructVarDeclString() const {
     std::string varDeclStr = '\'' + (id.isArray ? getArrayId() : id.idStr) +
-                             '\'' + ": " + getTokenName(type);
+                             '\'' + ": " + getPrimitiveName(type);
     return varDeclStr;
   }
 };
@@ -64,7 +64,8 @@ class PrototypeAST : public DeclAST {
   PrototypeAST(TokenKind type, Identifier id, std::vector<FuncParam> args)
       : type(type), id(std::move(id)), args(std::move(args)) {}
   std::string constructProtoString() const {
-    std::string protoStr = '\'' + id.idStr + '\'' + " -> " + getTokenName(type);
+    std::string protoStr =
+        '\'' + id.idStr + '\'' + " -> " + getPrimitiveName(type);
     return protoStr;
   }
 };
@@ -83,13 +84,11 @@ class FuncDeclAST : public DeclAST {
 };
 
 class BlockStmtAST : public StmtAST {
-  std::vector<std::unique_ptr<VarDeclAST>> localDecls;
   std::vector<std::unique_ptr<StmtAST>> stmtList;
 
  public:
-  BlockStmtAST(std::vector<std::unique_ptr<VarDeclAST>> localDecls,
-               std::vector<std::unique_ptr<StmtAST>> stmtList)
-      : localDecls(std::move(localDecls)), stmtList(std::move(stmtList)) {}
+  BlockStmtAST(std::vector<std::unique_ptr<StmtAST>> stmtList)
+      : stmtList(std::move(stmtList)) {}
   virtual void print(int indentation) const override;
   virtual std::string getTypeString() const override { return "BlockStmt"; }
 };

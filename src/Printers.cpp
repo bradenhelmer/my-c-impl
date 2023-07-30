@@ -33,4 +33,8 @@ void FuncDeclAST::print(int indentation) const {
   }
 }
 void ExprAST::print(int indentation) const {}
-void BlockStmtAST::print(int indentation) const {}
+void BlockStmtAST::print(int indentation) const {
+  for (const auto& stmt : stmtList) {
+    stmt->print(indentation);
+  }
+}

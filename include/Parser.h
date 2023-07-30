@@ -67,6 +67,20 @@ class Parser {
   // Parse a block statement
   // blockStmt -> { localDecls stmtList }
   std::unique_ptr<BlockStmtAST> parseBlockStmt();
+
+  // Parse a condition statment
+  // condStmt -> if (simpleExpr) blockStmt |
+  // if (simpleExpr) blockStmt else blockStmt
+  std::unique_ptr<BlockStmtAST> parseCondStatement();
+
+  // Parse a for or a while statement
+  // iterStmt -> while(simpleExpr) blockStmt |
+  // for (simpleExpr; simpleExpr; simpleExpr) blockStmt
+  std::unique_ptr<BlockStmtAST> parseIterStmt();
+
+  // Parse a return statement
+  // returnStmt -> return; | return expr;
+  std::unique_ptr<BlockStmtAST> parseReturnStmt();
 };
 
 #endif  // PARSER_H

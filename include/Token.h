@@ -56,14 +56,23 @@ inline static bool isKeyword(std::string ident) {
 
 inline static bool isIdentifer(TokenKind kind) { return kind == identifier; }
 
-inline static bool isTypeKeyword(TokenKind kind) {
+inline static bool isPrimitive(TokenKind kind) {
   switch (kind) {
     case kw_bool:
     case kw_char:
     case kw_int:
+    case kw_void:
       return true;
     default:
       return false;
+  }
+}
+
+inline static const std::string getPrimitiveName(TokenKind kind) {
+  if (!isPrimitive(kind)) {
+    return NULL;
+  } else {
+    return getTokenName(kind).substr(3);
   }
 }
 

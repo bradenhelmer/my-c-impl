@@ -24,7 +24,7 @@ std::vector<std::unique_ptr<DeclAST>> Parser::parseDeclList() {
 }
 
 std::unique_ptr<DeclAST> Parser::parseDecl() {
-  if (!isTypeKeyword(currTok->kind))
+  if (!isPrimitive(currTok->kind))
     return LogError<DeclAST>("Expected type specifer!");
   TokenKind kind = currTok->kind;
   advanceCurrent();
@@ -52,7 +52,7 @@ std::unique_ptr<PrototypeAST> Parser::parseProtoType(TokenKind kind,
   while (currTok->kind != c_paren) {
     if (currTok->kind == comma) advanceCurrent();
 
-    if (!isTypeKeyword(currTok->kind)) {
+    if (!isPrimitive(currTok->kind)) {
       return LogError<PrototypeAST>(
           "Expected type specifer when parsing function arguments!");
     }
@@ -78,6 +78,7 @@ std::unique_ptr<FuncDeclAST> Parser::parseFuncDecl(TokenKind kind,
     advanceCurrent();
     return std::make_unique<FuncDeclAST>(std::move(proto), nullptr);
   } else if (currTok->kind == o_brace) {
+    advanceCurrent();
     return std::make_unique<FuncDeclAST>(std::move(proto), parseBlockStmt());
   } else {
     return LogError<FuncDeclAST>("Error parsing function declaration!");
@@ -97,7 +98,36 @@ std::unique_ptr<VarDeclAST> Parser::parseVarDecl(TokenKind kind,
 }
 
 std::unique_ptr<ExprAST> Parser::parseExpr() { return nullptr; }
-std::unique_ptr<BlockStmtAST> Parser::parseBlockStmt() { return nullptr; }
+std::unique_ptr<BlockStmtAST> Parser::parseBlockStmt() {
+  std::vector<std::unique_ptr<StmtAST>> stmtList;
+  while (currTok->kind != c_brace) {
+    if (isPrimitive(currTok->kind)) {
+      TokenKind currKind = currTok->kind;
+      advanceCurrent();
+      stmtList.push_back(parseVarDecl(currKind, lex.getIdentifier()));
+    } else {
+      switch (currTok->kind) {
+	case kw_if:
+	  stmtList.push_back(parseCondStatement());
+	  break;
+	case kw_for:
+	case kw_while:
+	  stmtList.push_back(parseIterStmt());
+	  break;
+	case kw_return:
+	  stmtList.push_back(parseReturnStmt());
+      }
+    }
+  }
+  advanceCurrent();
+  return std::make_unique<BlockStmtAST>(std::move(stmtList));
+}
+
+std::unique_ptr<BlockStmtAST> Parser::parseCondStatement() {}
+
+std::unique_ptr<BlockStmtAST> Parser::parseIterStmt() {}
+
+std::unique_ptr<BlockStmtAST> Parser::parseReturnStmt() {}
 
 template <typename T>
 std::unique_ptr<T> Parser::LogError(const char *str) {
