@@ -3,6 +3,9 @@
 // Implementation of AST printer funtions
 #include "Ast.h"
 #include "Common.h"
+#include "DeclAst.h"
+#include "ExprAst.h"
+#include "StmtAst.h"
 
 void Program::print(int indentation) const {
   LLVM_OUT_NL("Printing Abstract Syntax Tree");
@@ -32,7 +35,13 @@ void FuncDeclAST::print(int indentation) const {
     body->print(indentation + 1);
   }
 }
-void ExprAST::print(int indentation) const {}
+void ExprAST::print(int indenation) const {}
+void NumConstAST::print(int indentation) const {
+  std::string indent(indentation, INDENT_CHAR);
+  LLVM_OUT(indent);
+  LLVM_OUT_NL(getTypeString() + ": " + std::to_string(numConst));
+}
+
 void BlockStmtAST::print(int indentation) const {
   for (const auto& stmt : stmtList) stmt->print(indentation);
 }

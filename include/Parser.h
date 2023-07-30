@@ -6,7 +6,10 @@
 #include <memory>
 
 #include "Ast.h"
+#include "DeclAst.h"
+#include "ExprAst.h"
 #include "Lexer.h"
+#include "StmtAst.h"
 #include "Token.h"
 
 class Parser {
@@ -22,11 +25,17 @@ class Parser {
 
   // Node to log errors.
   template <typename T>
-  static std::unique_ptr<T> LogError(const char *str);
+  static std::unique_ptr<T> LogError(const char *str) {
+    fprintf(stderr, "Error: %s\n", str);
+    return nullptr;
+  }
 
  private:
   // Advance current token from lexer and set currTok
   void advanceCurrent();
+
+  // Get current token kind
+  TokenKind currKind() const { return currTok->kind; }
 
   // Parse all declarations from source.
   // declList -> declList decl | decl
@@ -58,12 +67,6 @@ class Parser {
   std::unique_ptr<VarDeclAST> parseVarDecl(TokenKind kind,
                                            const Identifier &id);
 
-  // Parse an expression that can be evaluated to some value
-  // expr -> mutable = expr | mutable += expr |
-  //  mutable -= expr | mutable *= expr |
-  //  mutable /= expr | mutable++ | mutable-- | simpleExpr
-  std::unique_ptr<ExprAST> parseExpr();
-
   // Parse a block statement
   // blockStmt -> { localDecls stmtList }
   std::unique_ptr<BlockStmtAST> parseBlockStmt();
@@ -81,6 +84,31 @@ class Parser {
   // Parse a return statement
   // returnStmt -> return; | return expr;
   std::unique_ptr<ReturnStmtAST> parseReturnStmt();
+
+  // Parse an expression that can be evaluated to some value
+  // expr -> mutable = expr | mutable += expr |
+  //  mutable -= expr | mutable *= expr |
+  //  mutable /= expr | mutable++ | mutable-- | simpleExpr
+  std::unique_ptr<ExprAST> parseExpr();
+
+  // Expression parsing entry point
+  // primary -> numberExpr | identifierExpr | parentheseExpr
+  std::unique_ptr<ExprAST> parsePrimary();
+
+  // Parse a Binary operator expression
+  std::unique_ptr<ExprAST> parseBinaryOpExpr(std::unique_ptr<ExprAST> LHS,
+                                             Precedence prec);
+
+  // Parse a numeric constant e.g 60
+  std::unique_ptr<NumConstAST> parseNumberExpr();
+
+  // Parse an identifier expression e.g
+  // identifier | identifier(expression*)
+  std::unique_ptr<ExprAST> parseIdentifierExpr();
+
+  // Parse a expression in parentheses e.g
+  // ( expression )
+  std::unique_ptr<ExprAST> parseParentheseExpr();
 };
 
 #endif  // PARSER_H
