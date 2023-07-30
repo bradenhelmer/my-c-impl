@@ -34,7 +34,16 @@ void FuncDeclAST::print(int indentation) const {
 }
 void ExprAST::print(int indentation) const {}
 void BlockStmtAST::print(int indentation) const {
-  for (const auto& stmt : stmtList) {
-    stmt->print(indentation);
+  for (const auto& stmt : stmtList) stmt->print(indentation);
+}
+
+void ReturnStmtAST::print(int indentation) const {
+  std::string indent(indentation, INDENT_CHAR);
+  LLVM_OUT(indent);
+  LLVM_OUT(getTypeString() + ": ");
+  if (returnExpr != NULL) {
+    returnExpr->print(indentation + 1);
+  } else {
+    LLVM_OUT_NL("None");
   }
 }

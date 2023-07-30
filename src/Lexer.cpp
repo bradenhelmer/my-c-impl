@@ -109,6 +109,9 @@ void Lexer::advanceToken() {
     case '%':
       currentToken.kind = percent;
       break;
+    case '^':
+      currentToken.kind = hat;
+      break;
     case '|':
       if (peek == '|') {
 	currentToken.kind = pipe_pipe;

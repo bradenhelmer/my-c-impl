@@ -97,7 +97,6 @@ std::unique_ptr<VarDeclAST> Parser::parseVarDecl(TokenKind kind,
   }
 }
 
-std::unique_ptr<ExprAST> Parser::parseExpr() { return nullptr; }
 std::unique_ptr<BlockStmtAST> Parser::parseBlockStmt() {
   std::vector<std::unique_ptr<StmtAST>> stmtList;
   while (currTok->kind != c_brace) {
@@ -115,6 +114,7 @@ std::unique_ptr<BlockStmtAST> Parser::parseBlockStmt() {
 	  stmtList.push_back(parseIterStmt());
 	  break;
 	case kw_return:
+	  advanceCurrent();
 	  stmtList.push_back(parseReturnStmt());
       }
     }
@@ -127,7 +127,13 @@ std::unique_ptr<BlockStmtAST> Parser::parseCondStatement() {}
 
 std::unique_ptr<BlockStmtAST> Parser::parseIterStmt() {}
 
-std::unique_ptr<BlockStmtAST> Parser::parseReturnStmt() {}
+std::unique_ptr<ReturnStmtAST> Parser::parseReturnStmt() {
+  if (currTok->kind == semi_colon) {
+    advanceCurrent();
+    return std::make_unique<ReturnStmtAST>(nullptr);
+  }
+  return std::make_unique<ReturnStmtAST>(parseExpr());
+}
 
 template <typename T>
 std::unique_ptr<T> Parser::LogError(const char *str) {

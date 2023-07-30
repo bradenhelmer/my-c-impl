@@ -81,8 +81,6 @@ EXPRESSIONS
 
 36. mutable -> IDENTIFIER | IDENTIFIER[expr]
 
-37. immutable -> (expr) | call | constant 
-
 38. call -> IDENTIFIER(args)
 
 39. args -> argList | E

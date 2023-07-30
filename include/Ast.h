@@ -21,6 +21,40 @@ class ExprAST : public AstNode {
   virtual void print(int indentation) const override;
 };
 
+class NumConstAST : public ExprAST {
+  double numConst;
+
+ public:
+  NumConstAST(double value) : numConst(value) {}
+};
+
+class CharConstAST : public ExprAST {
+  char charConst;
+
+ public:
+  CharConstAST(char charConst) : charConst(charConst) {}
+};
+
+class StringLiteralAST : public ExprAST {
+  const std::string strLiteral;
+  double length;
+
+ public:
+  StringLiteralAST(const std::string &strLiteral) : strLiteral(strLiteral) {
+    length = strLiteral.size();
+  }
+};
+class BinaryExprAST : public ExprAST {
+  TokenKind op;
+  std::unique_ptr<ExprAST> LHS, RHS;
+
+  BinaryExprAST(TokenKind op, std::unique_ptr<ExprAST> LHS,
+                std::unique_ptr<ExprAST> RHS)
+      : op(op), LHS(std::move(LHS)), RHS(std::move(RHS)) {}
+};
+class CallExprAST;
+class UnaryExprAST;
+
 class StmtAST : public AstNode {};
 
 class Program : public AstNode {
@@ -91,4 +125,14 @@ class BlockStmtAST : public StmtAST {
       : stmtList(std::move(stmtList)) {}
   virtual void print(int indentation) const override;
   virtual std::string getTypeString() const override { return "BlockStmt"; }
+};
+
+class ReturnStmtAST : public StmtAST {
+  std::unique_ptr<ExprAST> returnExpr;
+
+ public:
+  ReturnStmtAST(std::unique_ptr<ExprAST> returnExpr)
+      : returnExpr(std::move(returnExpr)) {}
+  virtual void print(int indentation) const override;
+  virtual std::string getTypeString() const override { return "ReturnStmt"; }
 };

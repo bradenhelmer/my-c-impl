@@ -80,7 +80,7 @@ class Parser {
 
   // Parse a return statement
   // returnStmt -> return; | return expr;
-  std::unique_ptr<BlockStmtAST> parseReturnStmt();
+  std::unique_ptr<ReturnStmtAST> parseReturnStmt();
 };
 
 #endif  // PARSER_H

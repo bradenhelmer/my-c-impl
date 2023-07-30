@@ -80,4 +80,50 @@ inline static TokenKind getKeywordToken(std::string ident) {
   return keywords.at(ident);
 }
 
+enum Precedence : unsigned short {
+  error = 0,
+  assignment = 1,
+  logical_or = 2,
+  loglical_and = 3,
+  equality = 4,
+  relational = 5,
+  additive = 6,
+  multiplicative = 7,
+  exponential = 8,
+};
+
+static Precedence getOperatorPrecedence(TokenKind kind) {
+  switch (kind) {
+    case equal:
+    case plus_equal:
+    case minus_equal:
+    case star_equal:
+    case slash_equal:
+      return assignment;
+    case pipe_pipe:
+      return logical_or;
+    case amp_amp:
+      return loglical_and;
+    case equal_equal:
+    case bang_equal:
+      return equality;
+    case less:
+    case greater:
+    case less_equal:
+    case greater_equal:
+      return relational;
+    case plus:
+    case minus:
+      return additive;
+    case slash:
+    case star:
+    case percent:
+      return multiplicative;
+    case hat:
+      return exponential;
+    default:
+      return error;
+  }
+}
+
 #endif  // TOKEN_H
