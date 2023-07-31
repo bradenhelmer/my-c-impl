@@ -3,6 +3,7 @@
 
 std::unique_ptr<BlockStmtAST> Parser::parseBlockStmt() {
   std::vector<std::unique_ptr<StmtAST>> stmtList;
+  static int count = 1;
   while (currKind() != c_brace) {
     if (isPrimitive(currKind())) {
       TokenKind currDeclKind = currTok->kind;
@@ -10,6 +11,10 @@ std::unique_ptr<BlockStmtAST> Parser::parseBlockStmt() {
       stmtList.push_back(parseVarDecl(currDeclKind, lex.getIdentifier()));
     } else {
       switch (currKind()) {
+	case identifier:
+	  stmtList.push_back(std::make_unique<ExprStmtAST>(parseExpr()));
+	  advanceCurrent();
+	  break;
 	case kw_if:
 	  stmtList.push_back(parseCondStatement());
 	  break;

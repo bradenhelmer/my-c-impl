@@ -252,7 +252,7 @@ void Lexer::printToken(int num) {
     }
     std::cout << std::endl;
   } else {
-    PRINT(getTokenName(currentToken.kind));
+    PRINT(getTokenName(currentToken.kind))
   }
 }
 

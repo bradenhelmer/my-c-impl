@@ -42,6 +42,19 @@ void NumConstAST::print(int indentation) const {
   LLVM_OUT_NL(getTypeString() + ": " + std::to_string(numConst));
 }
 
+void CallExprAST::print(int indentation) const {
+  std::string indent(indentation, INDENT_CHAR);
+  LLVM_OUT(indent);
+  LLVM_OUT_NL(constructCallStr());
+}
+
+void ExprStmtAST::print(int indentation) const {
+  std::string indent(indentation, INDENT_CHAR);
+  LLVM_OUT(indent);
+  LLVM_OUT_NL(getTypeString());
+  expr->print(indentation + 1);
+}
+
 void BlockStmtAST::print(int indentation) const {
   for (const auto& stmt : stmtList) stmt->print(indentation);
 }

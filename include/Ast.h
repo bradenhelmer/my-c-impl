@@ -24,7 +24,10 @@ class ExprAST : public AstNode {
   virtual void print(int indentation) const override;
 };
 
-class StmtAST : public AstNode {};
+class StmtAST : public AstNode {
+ public:
+  virtual std::unique_ptr<ExprAST> &getExprRef() {}
+};
 
 class Program : public AstNode {
   std::vector<std::unique_ptr<DeclAST>> declList;

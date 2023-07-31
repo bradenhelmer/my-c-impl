@@ -27,6 +27,9 @@ dbg: clean dirs lang
 dirs:
 	mkdir -p ./$(BIN) ./$(OBJS_DIR)
 
+re:
+	$(BIN)/lang $(BIN)/"TestFile.lang"
+
 run: all
 	$(BIN)/lang $(BIN)/"TestFile.lang"
 

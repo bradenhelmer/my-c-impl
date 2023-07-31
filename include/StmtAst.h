@@ -3,6 +3,16 @@
 #define STMT_AST_H
 #include "Ast.h"
 
+class ExprStmtAST : public StmtAST {
+  std::unique_ptr<ExprAST> expr;
+
+ public:
+  ExprStmtAST(std::unique_ptr<ExprAST> expr) : expr(std::move(expr)) {}
+  std::unique_ptr<ExprAST> &getExprRef() override { return expr; }
+  virtual void print(int indentation) const override;
+  virtual std::string getTypeString() const override { return "ExprStmt"; }
+};
+
 class BlockStmtAST : public StmtAST {
   std::vector<std::unique_ptr<StmtAST>> stmtList;
 

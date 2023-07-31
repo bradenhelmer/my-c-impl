@@ -80,8 +80,9 @@ inline static TokenKind getKeywordToken(std::string ident) {
   return keywords.at(ident);
 }
 
-enum Precedence : unsigned short {
-  error = 0,
+enum Precedence {
+  error = -1,
+  base = 0,
   assignment = 1,
   logical_or = 2,
   loglical_and = 3,
@@ -125,5 +126,7 @@ static Precedence getOperatorPrecedence(TokenKind kind) {
       return error;
   }
 }
+
+#define PRINT_TOKEN PRINT(getTokenName(currKind()))
 
 #endif  // TOKEN_H

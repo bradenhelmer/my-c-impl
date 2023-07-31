@@ -17,6 +17,7 @@ class CharConstAST : public ExprAST {
 
  public:
   CharConstAST(char charConst) : charConst(charConst) {}
+  virtual std::string getTypeString() const override { return "CharConst"; }
 };
 
 class StringLiteralAST : public ExprAST {
@@ -27,15 +28,28 @@ class StringLiteralAST : public ExprAST {
   StringLiteralAST(const std::string &strLiteral) : strLiteral(strLiteral) {
     length = strLiteral.size();
   }
+  virtual std::string getTypeString() const override { return "StrLiteral"; }
 };
+
 class BinaryExprAST : public ExprAST {
   TokenKind op;
   std::unique_ptr<ExprAST> LHS, RHS;
 
+ public:
   BinaryExprAST(TokenKind op, std::unique_ptr<ExprAST> LHS,
                 std::unique_ptr<ExprAST> RHS)
       : op(op), LHS(std::move(LHS)), RHS(std::move(RHS)) {}
+  virtual std::string getTypeString() const override { return "BinOp"; }
 };
+
+class VarExprAST : public ExprAST {
+  std::string name;
+
+ public:
+  VarExprAST(const std::string &name) : name(name) {}
+  virtual std::string getTypeString() const override { return "VarExpr"; }
+};
+
 class CallExprAST : public ExprAST {
   std::string callee;
   std::vector<std::unique_ptr<ExprAST>> args;
@@ -44,7 +58,15 @@ class CallExprAST : public ExprAST {
   CallExprAST(const std::string &callee,
               std::vector<std::unique_ptr<ExprAST>> args)
       : callee(callee), args(std::move(args)) {}
+  virtual void print(int indenation) const override;
+  virtual std::string getTypeString() const override { return "CallExpr"; }
+  std::string constructCallStr() const {
+    std::string callStr = getTypeString() + " -> " + '\'' + callee + '\'';
+    return callStr;
+    ;
+  }
 };
+
 class UnaryExprAST;
 
 #endif  // EXPR_AST_H

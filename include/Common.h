@@ -9,7 +9,7 @@
 #include <iostream>
 
 #define ASSERT(X) assert(X)
-#define PRINT(X) std::cout << X << std::endl
+#define PRINT(X) std::cout << X << std::endl;
 #define DEBUG_HERE std::cout << "HERE" << std::endl;
 
 #define INDENT_CHAR '\t'

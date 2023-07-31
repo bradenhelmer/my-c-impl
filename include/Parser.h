@@ -93,11 +93,15 @@ class Parser {
 
   // Expression parsing entry point
   // primary -> numberExpr | identifierExpr | parentheseExpr
-  std::unique_ptr<ExprAST> parsePrimary();
+  std::unique_ptr<ExprAST> parsePrimaryExpr();
 
   // Parse a Binary operator expression
   std::unique_ptr<ExprAST> parseBinaryOpExpr(std::unique_ptr<ExprAST> LHS,
                                              Precedence prec);
+
+  // Parse a call expression e.g
+  // identifier(expression*)
+  std::unique_ptr<CallExprAST> parseCallExpr(Identifier &id);
 
   // Parse a numeric constant e.g 60
   std::unique_ptr<NumConstAST> parseNumberExpr();
