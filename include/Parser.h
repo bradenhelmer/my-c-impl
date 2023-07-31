@@ -106,6 +106,12 @@ class Parser {
   // Parse a numeric constant e.g 60
   std::unique_ptr<NumConstAST> parseNumberExpr();
 
+  // Parse a character constant e.g 'a'
+  std::unique_ptr<CharConstAST> parseCharExpr();
+
+  // Parse a string literal e.g "string"
+  std::unique_ptr<StringLiteralAST> parseStrLiteralExpr();
+
   // Parse an identifier expression e.g
   // identifier | identifier(expression*)
   std::unique_ptr<ExprAST> parseIdentifierExpr();

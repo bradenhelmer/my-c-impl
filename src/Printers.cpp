@@ -35,17 +35,47 @@ void FuncDeclAST::print(int indentation) const {
     body->print(indentation + 1);
   }
 }
-void ExprAST::print(int indenation) const {}
+void ExprAST::print(int indentation) const {}
+
 void NumConstAST::print(int indentation) const {
   std::string indent(indentation, INDENT_CHAR);
   LLVM_OUT(indent);
   LLVM_OUT_NL(getTypeString() + ": " + std::to_string(numConst));
 }
 
+void CharConstAST::print(int indentation) const {
+  std::string indent(indentation, INDENT_CHAR);
+  LLVM_OUT(indent);
+  LLVM_OUT_NL(getTypeString() + ": " + "'" + charConst + "'");
+}
+
+void StringLiteralAST::print(int indentation) const {
+  std::string indent(indentation, INDENT_CHAR);
+  LLVM_OUT(indent);
+  LLVM_OUT_NL(getTypeString() + ": " + "\"" + strLiteral + "\"");
+}
+
+void VarExprAST::print(int indentation) const {
+  std::string indent(indentation, INDENT_CHAR);
+  LLVM_OUT(indent);
+  LLVM_OUT_NL(constructVarString());
+}
+
 void CallExprAST::print(int indentation) const {
   std::string indent(indentation, INDENT_CHAR);
   LLVM_OUT(indent);
   LLVM_OUT_NL(constructCallStr());
+}
+
+void BinaryExprAST::print(int indentation) const {
+  std::string indent(indentation, INDENT_CHAR);
+  LLVM_OUT(indent);
+  LLVM_OUT_NL(getTypeString() + ": ");
+  LHS->print(indentation + 1);
+  std::string op_indent(indentation + 1, INDENT_CHAR);
+  LLVM_OUT(op_indent);
+  LLVM_OUT_NL(getPunctuatorSpelling(op));
+  RHS->print(indentation + 1);
 }
 
 void ExprStmtAST::print(int indentation) const {

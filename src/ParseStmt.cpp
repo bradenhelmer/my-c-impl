@@ -9,6 +9,7 @@ std::unique_ptr<BlockStmtAST> Parser::parseBlockStmt() {
       TokenKind currDeclKind = currTok->kind;
       advanceCurrent();
       stmtList.push_back(parseVarDecl(currDeclKind, lex.getIdentifier()));
+      advanceCurrent();
     } else {
       switch (currKind()) {
 	case identifier:

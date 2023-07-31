@@ -12,7 +12,7 @@
 #define PRINT(X) std::cout << X << std::endl;
 #define DEBUG_HERE std::cout << "HERE" << std::endl;
 
-#define INDENT_CHAR '\t'
+#define INDENT_CHAR ' '
 #define LLVM_OUT(X) llvm::outs() << X
 #define LLVM_OUT_NL(X) \
   llvm::outs() << X;   \

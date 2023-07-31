@@ -22,6 +22,18 @@ static const std::map<std::string, TokenKind> keywords = {
 #include "TokenDefs.h"
 };
 
+static const char *getPunctuatorSpelling(TokenKind kind) {
+  switch (kind) {
+#define TOKEN_PUNCTUATOR(X, Y) \
+  case X:                      \
+    return Y;
+#include "TokenDefs.h"
+    default:
+      break;
+  }
+  return nullptr;
+}
+
 typedef struct {
   TokenKind kind;
   char *start;

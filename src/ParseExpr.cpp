@@ -8,6 +8,27 @@ std::unique_ptr<NumConstAST> Parser::parseNumberExpr() {
   return std::make_unique<NumConstAST>(val);
 }
 
+std::unique_ptr<CharConstAST> Parser::parseCharExpr() {
+  advanceCurrent();
+  Identifier id = lex.getIdentifier();
+  if (id.idStr.size() > 1)
+    return LogError<CharConstAST>(
+        "Character expression cannot be more than 1 character long!");
+  if (currKind() != apost)
+    return LogError<CharConstAST>("Missing closing apostrophe!");
+  advanceCurrent();
+  return std::make_unique<CharConstAST>(id.idStr.front());
+}
+
+std::unique_ptr<StringLiteralAST> Parser::parseStrLiteralExpr() {
+  advanceCurrent();
+  Identifier id = lex.getIdentifier();
+  if (currKind() != quote)
+    return LogError<StringLiteralAST>("Missing closing quote!");
+  advanceCurrent();
+  return std::make_unique<StringLiteralAST>(id.idStr);
+}
+
 std::unique_ptr<CallExprAST> Parser::parseCallExpr(Identifier &id) {
   std::vector<std::unique_ptr<ExprAST>> args;
   while (currKind() != c_paren) {
@@ -17,7 +38,6 @@ std::unique_ptr<CallExprAST> Parser::parseCallExpr(Identifier &id) {
   advanceCurrent();
   return std::make_unique<CallExprAST>(id.idStr, std::move(args));
 }
-
 std::unique_ptr<ExprAST> Parser::parseIdentifierExpr() {
   Identifier currId = lex.getIdentifier();
   if (currKind() == o_paren) {
@@ -45,6 +65,10 @@ std::unique_ptr<ExprAST> Parser::parsePrimaryExpr() {
       return parseIdentifierExpr();
     case o_paren:
       return parseParentheseExpr();
+    case apost:
+      return parseCharExpr();
+    case quote:
+      return parseStrLiteralExpr();
     default:
       return LogError<ExprAST>("Unknown token when parsing expression!");
   }
@@ -52,11 +76,6 @@ std::unique_ptr<ExprAST> Parser::parsePrimaryExpr() {
 
 std::unique_ptr<ExprAST> Parser::parseExpr() {
   std::unique_ptr<ExprAST> LHS = parsePrimaryExpr();
-
-  if (currKind() == semi_colon) {
-    advanceCurrent();
-    return LHS;
-  }
   return parseBinaryOpExpr(std::move(LHS), base);
 }
 
