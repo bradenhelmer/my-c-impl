@@ -129,13 +129,29 @@ void Lexer::advanceToken() {
       }
       break;
     case '!':
-      currentToken.kind = bang;
+      if (peek == '=') {
+	currentToken.kind = bang_equal;
+	bufPtr++;
+      } else {
+	currentToken.kind = bang;
+      }
       break;
     case '<':
       if (peek == '=') {
 	currentToken.kind = less_equal;
+	bufPtr++;
       } else {
+	currentToken.kind = less;
       }
+      break;
+    case '>':
+      if (peek == '=') {
+	currentToken.kind = greater_equal;
+	bufPtr++;
+      } else {
+	currentToken.kind = greater;
+      }
+      break;
     case '0':
     case '1':
     case '2':
