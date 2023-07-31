@@ -27,7 +27,15 @@ std::unique_ptr<ExprAST> Parser::parseIdentifierExpr() {
   return std::make_unique<VarExprAST>(currId.idStr);
 }
 
-std::unique_ptr<ExprAST> Parser::parseParentheseExpr() {}
+std::unique_ptr<ExprAST> Parser::parseParentheseExpr() {
+  advanceCurrent();
+  std::unique_ptr<ExprAST> V = parseExpr();
+  if (!V) return nullptr;
+  if (currKind() != c_paren)
+    return LogError<ExprAST>("Expected closing parenthese!");
+  advanceCurrent();
+  return V;
+}
 
 std::unique_ptr<ExprAST> Parser::parsePrimaryExpr() {
   switch (currKind()) {
