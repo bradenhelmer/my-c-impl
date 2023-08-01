@@ -23,6 +23,7 @@ class VarDeclAST : public DeclAST, public StmtAST {
                              '\'' + ": " + getPrimitiveName(type);
     return varDeclStr;
   }
+  virtual llvm::Value *codeGen() override;
 };
 
 class PrototypeAST : public DeclAST {
@@ -38,6 +39,7 @@ class PrototypeAST : public DeclAST {
         '\'' + id.idStr + '\'' + " -> " + getPrimitiveName(type);
     return protoStr;
   }
+  virtual llvm::Value *codeGen() override;
 };
 
 class BlockStmtAST;
@@ -51,6 +53,7 @@ class FuncDeclAST : public DeclAST {
       : proto(std::move(proto)), body(std::move(body)) {}
   void print(int indentation) const override;
   std::string getTypeString() const override { return "FuncDecl"; }
+  virtual llvm::Value *codeGen() override;
 };
 
 #endif  // DECL_AST_H

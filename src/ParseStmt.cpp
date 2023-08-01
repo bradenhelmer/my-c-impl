@@ -2,6 +2,7 @@
 #include "Parser.h"
 
 std::unique_ptr<BlockStmtAST> Parser::parseBlockStmt() {
+  advanceCurrent();
   std::vector<std::unique_ptr<StmtAST>> stmtList;
   static int count = 1;
   while (currKind() != c_brace) {

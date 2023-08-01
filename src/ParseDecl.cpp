@@ -4,8 +4,8 @@
 std::vector<std::unique_ptr<DeclAST>> Parser::parseDeclList() {
   std::vector<std::unique_ptr<DeclAST>> declList;
   while (currKind() != eof) {
-    std::unique_ptr<DeclAST> decl = parseDecl();
-    declList.push_back(std::move(decl));
+    declList.push_back(parseDecl());
+    advanceCurrent();
   }
   return declList;
 }
@@ -23,7 +23,6 @@ std::unique_ptr<DeclAST> Parser::parseDecl() {
   // If token after identifier is an open parenthese,
   // we know this is a function definition.
   if (currKind() == o_paren) {
-    advanceCurrent();
     return parseFuncDecl(kind, id);
   } else {
     return parseVarDecl(kind, id);
@@ -32,6 +31,7 @@ std::unique_ptr<DeclAST> Parser::parseDecl() {
 
 std::unique_ptr<PrototypeAST> Parser::parseProtoType(TokenKind kind,
                                                      const Identifier &id) {
+  advanceCurrent();
   std::vector<FuncParam> params;
   TokenKind currParamKind;
   Identifier currParamId;
@@ -46,8 +46,8 @@ std::unique_ptr<PrototypeAST> Parser::parseProtoType(TokenKind kind,
 
     currParamKind = currKind();
     advanceCurrent();
-
     if (!isIdentifer(currKind()))
+
       return LogError<PrototypeAST>(
           "Expected identifier when parsing function arguments!");
     currParamId = lex.getIdentifier();
@@ -63,10 +63,8 @@ std::unique_ptr<FuncDeclAST> Parser::parseFuncDecl(TokenKind kind,
                                                    const Identifier &id) {
   std::unique_ptr<PrototypeAST> proto = parseProtoType(kind, id);
   if (currKind() == semi_colon) {
-    advanceCurrent();
     return std::make_unique<FuncDeclAST>(std::move(proto), nullptr);
   } else if (currKind() == o_brace) {
-    advanceCurrent();
     return std::make_unique<FuncDeclAST>(std::move(proto), parseBlockStmt());
   } else {
     return LogError<FuncDeclAST>("Error parsing function declaration!");

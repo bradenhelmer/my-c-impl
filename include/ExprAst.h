@@ -10,6 +10,7 @@ class NumConstAST : public ExprAST {
   NumConstAST(double value) : numConst(value) {}
   void print(int indentation) const override;
   std::string getTypeString() const override { return "NumConst"; }
+  virtual llvm::Value *codeGen() override;
 };
 
 class CharConstAST : public ExprAST {
@@ -19,6 +20,7 @@ class CharConstAST : public ExprAST {
   CharConstAST(char charConst) : charConst(charConst) {}
   std::string getTypeString() const override { return "CharConst"; }
   void print(int indentation) const override;
+  virtual llvm::Value *codeGen() override;
 };
 
 class StringLiteralAST : public ExprAST {
@@ -31,6 +33,7 @@ class StringLiteralAST : public ExprAST {
   }
   std::string getTypeString() const override { return "StrLiteral"; }
   void print(int indentation) const override;
+  virtual llvm::Value *codeGen() override;
 };
 
 class BinaryExprAST : public ExprAST {
@@ -43,6 +46,7 @@ class BinaryExprAST : public ExprAST {
       : op(op), LHS(std::move(LHS)), RHS(std::move(RHS)) {}
   std::string getTypeString() const override { return "BinOpExp"; }
   void print(int indentation) const override;
+  virtual llvm::Value *codeGen() override;
 };
 
 class VarExprAST : public ExprAST {
@@ -56,6 +60,7 @@ class VarExprAST : public ExprAST {
     std::string varStr = getTypeString() + ": " + name;
     return varStr;
   }
+  virtual llvm::Value *codeGen() override;
 };
 
 class CallExprAST : public ExprAST {
@@ -73,6 +78,7 @@ class CallExprAST : public ExprAST {
     return callStr;
     ;
   }
+  virtual llvm::Value *codeGen() override;
 };
 
 class UnaryExprAST;
