@@ -35,6 +35,7 @@ void FuncDeclAST::print(int indentation) const {
     body->print(indentation + 1);
   }
 }
+
 void ExprAST::print(int indentation) const {}
 
 void NumConstAST::print(int indentation) const {
@@ -92,7 +93,7 @@ void BlockStmtAST::print(int indentation) const {
 void ReturnStmtAST::print(int indentation) const {
   std::string indent(indentation, INDENT_CHAR);
   LLVM_OUT(indent);
-  LLVM_OUT(getTypeString() + ": ");
+  LLVM_OUT_NL(getTypeString() + ": ");
   if (returnExpr != NULL) {
     returnExpr->print(indentation + 1);
   } else {

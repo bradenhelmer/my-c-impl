@@ -9,12 +9,10 @@ std::unique_ptr<BlockStmtAST> Parser::parseBlockStmt() {
       TokenKind currDeclKind = currTok->kind;
       advanceCurrent();
       stmtList.push_back(parseVarDecl(currDeclKind, lex.getIdentifier()));
-      advanceCurrent();
     } else {
       switch (currKind()) {
 	case identifier:
 	  stmtList.push_back(std::make_unique<ExprStmtAST>(parseExpr()));
-	  advanceCurrent();
 	  break;
 	case kw_if:
 	  stmtList.push_back(parseCondStatement());
@@ -28,6 +26,7 @@ std::unique_ptr<BlockStmtAST> Parser::parseBlockStmt() {
 	  stmtList.push_back(parseReturnStmt());
       }
     }
+    advanceCurrent();
   }
   advanceCurrent();
   return std::make_unique<BlockStmtAST>(std::move(stmtList));
@@ -38,9 +37,5 @@ std::unique_ptr<BlockStmtAST> Parser::parseCondStatement() {}
 std::unique_ptr<BlockStmtAST> Parser::parseIterStmt() {}
 
 std::unique_ptr<ReturnStmtAST> Parser::parseReturnStmt() {
-  if (currKind() == semi_colon) {
-    advanceCurrent();
-    return std::make_unique<ReturnStmtAST>(nullptr);
-  }
   return std::make_unique<ReturnStmtAST>(parseExpr());
 }
