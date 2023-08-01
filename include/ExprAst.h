@@ -8,8 +8,8 @@ class NumConstAST : public ExprAST {
 
  public:
   NumConstAST(double value) : numConst(value) {}
-  virtual void print(int indentation) const override;
-  virtual std::string getTypeString() const override { return "NumConst"; }
+  void print(int indentation) const override;
+  std::string getTypeString() const override { return "NumConst"; }
 };
 
 class CharConstAST : public ExprAST {
@@ -17,8 +17,8 @@ class CharConstAST : public ExprAST {
 
  public:
   CharConstAST(char charConst) : charConst(charConst) {}
-  virtual std::string getTypeString() const override { return "CharConst"; }
-  virtual void print(int indentation) const override;
+  std::string getTypeString() const override { return "CharConst"; }
+  void print(int indentation) const override;
 };
 
 class StringLiteralAST : public ExprAST {
@@ -29,8 +29,8 @@ class StringLiteralAST : public ExprAST {
   StringLiteralAST(const std::string &strLiteral) : strLiteral(strLiteral) {
     length = strLiteral.size();
   }
-  virtual std::string getTypeString() const override { return "StrLiteral"; }
-  virtual void print(int indentation) const override;
+  std::string getTypeString() const override { return "StrLiteral"; }
+  void print(int indentation) const override;
 };
 
 class BinaryExprAST : public ExprAST {
@@ -41,8 +41,8 @@ class BinaryExprAST : public ExprAST {
   BinaryExprAST(TokenKind op, std::unique_ptr<ExprAST> LHS,
                 std::unique_ptr<ExprAST> RHS)
       : op(op), LHS(std::move(LHS)), RHS(std::move(RHS)) {}
-  virtual std::string getTypeString() const override { return "BinOpExp"; }
-  virtual void print(int indentation) const override;
+  std::string getTypeString() const override { return "BinOpExp"; }
+  void print(int indentation) const override;
 };
 
 class VarExprAST : public ExprAST {
@@ -50,8 +50,8 @@ class VarExprAST : public ExprAST {
 
  public:
   VarExprAST(const std::string &name) : name(name) {}
-  virtual std::string getTypeString() const override { return "VarExpr"; }
-  virtual void print(int indentation) const override;
+  std::string getTypeString() const override { return "VarExpr"; }
+  void print(int indentation) const override;
   std::string constructVarString() const {
     std::string varStr = getTypeString() + ": " + name;
     return varStr;
@@ -66,8 +66,8 @@ class CallExprAST : public ExprAST {
   CallExprAST(const std::string &callee,
               std::vector<std::unique_ptr<ExprAST>> args)
       : callee(callee), args(std::move(args)) {}
-  virtual void print(int indentation) const override;
-  virtual std::string getTypeString() const override { return "CallExpr"; }
+  void print(int indentation) const override;
+  std::string getTypeString() const override { return "CallExpr"; }
   std::string constructCallStr() const {
     std::string callStr = getTypeString() + " -> " + '\'' + callee + '\'';
     return callStr;

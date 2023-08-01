@@ -9,8 +9,8 @@ class ExprStmtAST : public StmtAST {
  public:
   ExprStmtAST(std::unique_ptr<ExprAST> expr) : expr(std::move(expr)) {}
   std::unique_ptr<ExprAST> &getExprRef() override { return expr; }
-  virtual void print(int indentation) const override;
-  virtual std::string getTypeString() const override { return "ExprStmt"; }
+  void print(int indentation) const override;
+  std::string getTypeString() const override { return "ExprStmt"; }
 };
 
 class BlockStmtAST : public StmtAST {
@@ -19,8 +19,8 @@ class BlockStmtAST : public StmtAST {
  public:
   BlockStmtAST(std::vector<std::unique_ptr<StmtAST>> stmtList)
       : stmtList(std::move(stmtList)) {}
-  virtual void print(int indentation) const override;
-  virtual std::string getTypeString() const override { return "BlockStmt"; }
+  void print(int indentation) const override;
+  std::string getTypeString() const override { return "BlockStmt"; }
 };
 
 class ReturnStmtAST : public StmtAST {
@@ -29,8 +29,8 @@ class ReturnStmtAST : public StmtAST {
  public:
   ReturnStmtAST(std::unique_ptr<ExprAST> returnExpr)
       : returnExpr(std::move(returnExpr)) {}
-  virtual void print(int indentation) const override;
-  virtual std::string getTypeString() const override { return "ReturnStmt"; }
+  void print(int indentation) const override;
+  std::string getTypeString() const override { return "ReturnStmt"; }
 };
 
 #endif  // STMT_AST_H

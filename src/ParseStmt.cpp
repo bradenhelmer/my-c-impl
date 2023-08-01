@@ -26,6 +26,8 @@ std::unique_ptr<BlockStmtAST> Parser::parseBlockStmt() {
 	  stmtList.push_back(parseReturnStmt());
       }
     }
+    if (currKind() != semi_colon)
+      return LogError<BlockStmtAST>("Missing semi colon when parsing!");
     advanceCurrent();
   }
   advanceCurrent();

@@ -11,8 +11,8 @@ class VarDeclAST : public DeclAST, public StmtAST {
  public:
   VarDeclAST(TokenKind type, Identifier id, std::unique_ptr<ExprAST> expr)
       : id(std::move(id)), type(type), expr(std::move(expr)) {}
-  virtual void print(int indentation) const override;
-  virtual std::string getTypeString() const override { return "VarDecl"; }
+  void print(int indentation) const override;
+  std::string getTypeString() const override { return "VarDecl"; }
   std::string getArrayId() const {
     std::string arrayId = id.idStr;
     arrayId += '[' + std::to_string(id.size) + ']';
@@ -49,8 +49,8 @@ class FuncDeclAST : public DeclAST {
   FuncDeclAST(std::unique_ptr<PrototypeAST> proto,
               std::unique_ptr<BlockStmtAST> body)
       : proto(std::move(proto)), body(std::move(body)) {}
-  virtual void print(int indentation) const override;
-  virtual std::string getTypeString() const override { return "FuncDecl"; }
+  void print(int indentation) const override;
+  std::string getTypeString() const override { return "FuncDecl"; }
 };
 
 #endif  // DECL_AST_H

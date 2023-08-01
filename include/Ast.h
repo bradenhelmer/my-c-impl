@@ -4,6 +4,8 @@
 #ifndef AST_H
 #define AST_H
 
+#include <llvm/IR/Value.h>
+
 #include <memory>
 #include <vector>
 
@@ -21,7 +23,7 @@ class DeclAST : public AstNode {};
 
 class ExprAST : public AstNode {
  public:
-  virtual void print(int indentation) const override;
+  void print(int indentation) const override;
 };
 
 class StmtAST : public AstNode {
@@ -35,8 +37,8 @@ class Program : public AstNode {
  public:
   Program(std::vector<std::unique_ptr<DeclAST>> declList)
       : declList(std::move(declList)) {}
-  virtual void print(int indentation = 0) const override;
-  virtual std::string getTypeString() const override { return "Program"; }
+  void print(int indentation = 0) const override;
+  std::string getTypeString() const override { return "Program"; }
 };
 
 #endif  // AST_H
