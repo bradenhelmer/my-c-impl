@@ -17,14 +17,13 @@ class AstNode {
   virtual ~AstNode() = default;
   virtual void print(int indentation) const { LLVM_OUT_NL(getTypeString()); }
   virtual std::string getTypeString() const { return "AstNode"; }
+
+  /* virtual llvm::Value *codeGen() = 0; */
 };
 
 class DeclAST : public AstNode {};
 
-class ExprAST : public AstNode {
- public:
-  void print(int indentation) const override;
-};
+class ExprAST : public AstNode {};
 
 class StmtAST : public AstNode {
  public:

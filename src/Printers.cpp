@@ -36,8 +36,6 @@ void FuncDeclAST::print(int indentation) const {
   }
 }
 
-void ExprAST::print(int indentation) const {}
-
 void NumConstAST::print(int indentation) const {
   std::string indent(indentation, INDENT_CHAR);
   LLVM_OUT(indent);
