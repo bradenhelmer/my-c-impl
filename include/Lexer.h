@@ -12,10 +12,13 @@ class Lexer {
   void advanceToken();
   Token *getCurrentToken() { return &currentToken; }
   void lexAndPrintTokens();
+  std::string lexStringLiteral();
+  char lexCharConstant();
   void printToken(int num);
   Identifier getIdentifier();
   double getNumericLiteral();
   Lexer(std::vector<char> *buffer);
+  void printCurBuf();
 
  private:
   Token currentToken;

@@ -237,6 +237,27 @@ void Lexer::lexNumericLiteral() {
   currentToken.end = bufPtr - 1;
 }
 
+void Lexer::printCurBuf() { PRINT(*bufPtr) }
+
+char Lexer::lexCharConstant() {
+  const char charCnst = *bufPtr;
+  bufPtr++;
+  advanceToken();
+  return charCnst;
+}
+
+std::string Lexer::lexStringLiteral() {
+  currentToken.start = bufPtr;
+  do {
+    bufPtr++;
+    currentToken.length++;
+  } while (*bufPtr != '"');
+  currentToken.end = bufPtr - 1;
+  std::string literal(currentToken.start, currentToken.end + 1);
+  advanceToken();
+  return literal;
+}
+
 void Lexer::lexIdentifier() {
   do {
     bufPtr++;

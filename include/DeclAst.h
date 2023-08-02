@@ -2,6 +2,7 @@
 #ifndef DECL_AST_H
 #define DECL_AST_H
 #include "Ast.h"
+#include "StmtAst.h"
 
 class VarDeclAST : public DeclAST, public StmtAST {
   TokenKind type;
@@ -42,7 +43,6 @@ class PrototypeAST : public DeclAST {
   virtual llvm::Value *codeGen() override;
 };
 
-class BlockStmtAST;
 class FuncDeclAST : public DeclAST {
   std::unique_ptr<PrototypeAST> proto;
   std::unique_ptr<BlockStmtAST> body;

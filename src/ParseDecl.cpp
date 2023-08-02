@@ -5,7 +5,6 @@ std::vector<std::unique_ptr<DeclAST>> Parser::parseDeclList() {
   std::vector<std::unique_ptr<DeclAST>> declList;
   while (currKind() != eof) {
     declList.push_back(parseDecl());
-    advanceCurrent();
   }
   return declList;
 }

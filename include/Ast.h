@@ -21,6 +21,12 @@ class AstNode {
   virtual void print(int indentation) const { LLVM_OUT_NL(getTypeString()); }
   virtual std::string getTypeString() const { return "AstNode"; }
   virtual llvm::Value *codeGen() = 0;
+
+ protected:
+  static llvm::LLVMContext &context;
+  static llvm::IRBuilder<> &builder;
+  static llvm::Module &module;
+  static std::map<std::string, llvm::Value *> &symbolTable;
 };
 
 class DeclAST : public AstNode {};
@@ -36,24 +42,11 @@ class Program : public AstNode {
   std::vector<std::unique_ptr<DeclAST>> declList;
 
  public:
-  Program(llvm::LLVMContext &context, llvm::IRBuilder<> &builder,
-          llvm::Module &module,
-          std::map<std::string, llvm::Value *> &symbolTable,
-          std::vector<std::unique_ptr<DeclAST>> declList)
-      : context(context),
-        builder(builder),
-        module(module),
-        symbolTable(symbolTable),
-        declList(std::move(declList)) {}
+  Program(std::vector<std::unique_ptr<DeclAST>> declList)
+      : declList(std::move(declList)) {}
   void print(int indentation = 0) const override;
   std::string getTypeString() const override { return "Program"; }
   virtual llvm::Value *codeGen() override;
-
- protected:
-  llvm::LLVMContext &context;
-  llvm::IRBuilder<> &builder;
-  llvm::Module &module;
-  std::map<std::string, llvm::Value *> &symbolTable;
 };
 
 #endif  // AST_H

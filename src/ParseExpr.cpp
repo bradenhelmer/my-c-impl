@@ -9,24 +9,19 @@ std::unique_ptr<NumConstAST> Parser::parseNumberExpr() {
 }
 
 std::unique_ptr<CharConstAST> Parser::parseCharExpr() {
-  advanceCurrent();
-  Identifier id = lex.getIdentifier();
-  if (id.idStr.size() > 1)
-    return LogError<CharConstAST>(
-        "Character expression cannot be more than 1 character long!");
+  char char_const = lex.lexCharConstant();
   if (currKind() != apost)
     return LogError<CharConstAST>("Missing closing apostrophe!");
   advanceCurrent();
-  return std::make_unique<CharConstAST>(id.idStr.front());
+  return std::make_unique<CharConstAST>(char_const);
 }
 
 std::unique_ptr<StringLiteralAST> Parser::parseStrLiteralExpr() {
-  advanceCurrent();
-  Identifier id = lex.getIdentifier();
+  std::string str_literal = lex.lexStringLiteral();
   if (currKind() != quote)
     return LogError<StringLiteralAST>("Missing closing quote!");
   advanceCurrent();
-  return std::make_unique<StringLiteralAST>(id.idStr);
+  return std::make_unique<StringLiteralAST>(str_literal);
 }
 
 std::unique_ptr<CallExprAST> Parser::parseCallExpr(Identifier &id) {
