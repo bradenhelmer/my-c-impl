@@ -4,8 +4,8 @@
 
 llvm::Value *NumConstAST::codeGen() {
   // The primitive integer type for now will be 32 bits.
-  return llvm::ConstantInt::get(programRoot->getContext(),
-                                llvm::APInt(numConst, INT_BIT_LENGTH));
+  return llvm::ConstantInt::get(
+      llvm::Type::getInt32Ty(programRoot->getContext()), numConst);
 }
 
 llvm::Value *CharConstAST::codeGen() {

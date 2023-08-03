@@ -27,11 +27,17 @@ dbg: clean dirs lang
 dirs:
 	mkdir -p ./$(BIN) ./$(OBJS_DIR)
 
-re:
-	$(BIN)/lang $(BIN)/"TestFile.lang"
-
 run: all
-	$(BIN)/lang $(BIN)/"TestFile.lang"
+	$(BIN)/lang --exec $(BIN)/"TestFile.lang"
+
+print: all
+	$(BIN)/lang --print $(BIN)/"TestFile.lang"
+
+re:
+	$(BIN)/lang --exec $(BIN)/"TestFile.lang"
+
+rep:
+	$(BIN)/lang --print $(BIN)/"TestFile.lang"
 
 lang: $(OBJ)
 	$(CXX) $^ $(CXXFLAGS) $(LDFLAGS) -o $(BIN)/lang
