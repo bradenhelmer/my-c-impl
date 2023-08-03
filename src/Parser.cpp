@@ -9,7 +9,7 @@ std::shared_ptr<Program> Parser::parseProgram() {
   // Advance current token to begin parsing.
   advanceCurrent();
   // Parse
-  currentProgram->parse(parseDeclList());
+  currentProgram->attachDecls(parseDeclList());
   return currentProgram;
 }
 

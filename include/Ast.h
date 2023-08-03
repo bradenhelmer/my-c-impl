@@ -34,15 +34,28 @@ class StmtAST : public AstNode {
 
 class Program : public AstNode, public std::enable_shared_from_this<Program> {
   std::vector<std::unique_ptr<DeclAST>> declList;
+  std::unique_ptr<llvm::LLVMContext> ctx;
+  std::unique_ptr<llvm::IRBuilder<>> builder;
+  std::unique_ptr<llvm::Module> module;
+  std::unique_ptr<std::map<std::string, llvm::Value *>> symbolTable;
 
  public:
-  /* Program(std::vector<std::unique_ptr<DeclAST>> declList) */
-  /*     : declList(std::move(declList)) {} */
+  Program();
   void print(int indentation = 0) const override;
   std::string getTypeString() const override { return "Program"; }
   virtual llvm::Value *codeGen() override;
-  void parse(std::vector<std::unique_ptr<DeclAST>> decls) {
+  void attachDecls(std::vector<std::unique_ptr<DeclAST>> decls) {
     declList = std::move(decls);
+  }
+
+  llvm::LLVMContext &getContext() const { return *ctx; }
+
+  llvm::IRBuilder<> &getBuilder() const { return *builder; }
+
+  llvm::Module &getModule() const { return *module; }
+
+  std::map<std::string, llvm::Value *> &getSymbolTable() const {
+    return *symbolTable;
   }
 };
 
