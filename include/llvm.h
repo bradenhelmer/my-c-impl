@@ -7,4 +7,4 @@
 #define INT_BIT_LENGTH 32
 
 llvm::IntegerType *getTypeFromPrimitive(llvm::LLVMContext &context,
-                                               TokenKind kind);
+                                        TokenKind kind);
