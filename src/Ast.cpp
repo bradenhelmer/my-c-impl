@@ -7,3 +7,10 @@ Program::Program() {
   module = std::make_unique<llvm::Module>("main", getContext());
   symbolTable = std::make_unique<std::map<std::string, llvm::Value *>>();
 }
+
+llvm::Value *Program::codeGen() {
+  for (const auto &decl : declList) {
+    decl->codeGen();
+  }
+  return nullptr;
+}

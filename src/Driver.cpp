@@ -29,6 +29,7 @@ void Driver::executeToolchain() {
   Lexer lexer(&buf);
   Parser parser(lexer);
   std::shared_ptr<Program> ast = parser.parseProgram();
+  ast->codeGen();
 }
 
 void Driver::printAST() {

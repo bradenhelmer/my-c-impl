@@ -18,6 +18,7 @@ class VarDeclAST : public DeclAST, public StmtAST {
         type(type),
         expr(std::move(expr)) {}
   void print(int indentation) const override;
+  std::unique_ptr<ExprAST> &getExprRef() override { return expr; }
   std::string getTypeString() const override { return "VarDecl"; }
   std::string getArrayId() const {
     std::string arrayId = id.idStr;
@@ -29,7 +30,7 @@ class VarDeclAST : public DeclAST, public StmtAST {
                              '\'' + ": " + getPrimitiveName(type);
     return varDeclStr;
   }
-  virtual llvm::Value *codeGen() override;
+  llvm::Value *codeGen() override;
 };
 
 class PrototypeAST : public DeclAST {
@@ -50,7 +51,7 @@ class PrototypeAST : public DeclAST {
         '\'' + id.idStr + '\'' + " -> " + getPrimitiveName(type);
     return protoStr;
   }
-  virtual llvm::Value *codeGen() override;
+  llvm::Value *codeGen() override;
 };
 
 class FuncDeclAST : public DeclAST {
@@ -67,7 +68,7 @@ class FuncDeclAST : public DeclAST {
         body(std::move(body)) {}
   void print(int indentation) const override;
   std::string getTypeString() const override { return "FuncDecl"; }
-  virtual llvm::Value *codeGen() override;
+  llvm::Value *codeGen() override;
 };
 
 #endif  // DECL_AST_H

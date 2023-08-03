@@ -21,15 +21,27 @@ class AstNode {
   virtual void print(int indentation) const { LLVM_OUT_NL(getTypeString()); }
   virtual std::string getTypeString() const { return "AstNode"; }
   virtual llvm::Value *codeGen() = 0;
+
+  static llvm::Value *LogErrorV(const char *str) {
+    fprintf(stderr, "Error: %s\n", str);
+    return nullptr;
+  }
 };
 
-class DeclAST : public AstNode {};
+class DeclAST : public AstNode {
+ public:
+  llvm::Value *codeGen() override {}
+};
 
-class ExprAST : public AstNode {};
+class ExprAST : public AstNode {
+ public:
+  llvm::Value *codeGen() override {}
+};
 
 class StmtAST : public AstNode {
  public:
-  virtual std::unique_ptr<ExprAST> &getExprRef() {}
+  virtual std::unique_ptr<ExprAST> &getExprRef() = 0;
+  llvm::Value *codeGen() override {}
 };
 
 class Program : public AstNode, public std::enable_shared_from_this<Program> {
@@ -43,7 +55,7 @@ class Program : public AstNode, public std::enable_shared_from_this<Program> {
   Program();
   void print(int indentation = 0) const override;
   std::string getTypeString() const override { return "Program"; }
-  virtual llvm::Value *codeGen() override;
+  llvm::Value *codeGen() override;
   void attachDecls(std::vector<std::unique_ptr<DeclAST>> decls) {
     declList = std::move(decls);
   }
