@@ -21,12 +21,6 @@ class AstNode {
   virtual void print(int indentation) const { LLVM_OUT_NL(getTypeString()); }
   virtual std::string getTypeString() const { return "AstNode"; }
   virtual llvm::Value *codeGen() = 0;
-
- protected:
-  static llvm::LLVMContext &context;
-  static llvm::IRBuilder<> &builder;
-  static llvm::Module &module;
-  static std::map<std::string, llvm::Value *> &symbolTable;
 };
 
 class DeclAST : public AstNode {};
@@ -38,15 +32,18 @@ class StmtAST : public AstNode {
   virtual std::unique_ptr<ExprAST> &getExprRef() {}
 };
 
-class Program : public AstNode {
+class Program : public AstNode, public std::enable_shared_from_this<Program> {
   std::vector<std::unique_ptr<DeclAST>> declList;
 
  public:
-  Program(std::vector<std::unique_ptr<DeclAST>> declList)
-      : declList(std::move(declList)) {}
+  /* Program(std::vector<std::unique_ptr<DeclAST>> declList) */
+  /*     : declList(std::move(declList)) {} */
   void print(int indentation = 0) const override;
   std::string getTypeString() const override { return "Program"; }
   virtual llvm::Value *codeGen() override;
+  void parse(std::vector<std::unique_ptr<DeclAST>> decls) {
+    declList = std::move(decls);
+  }
 };
 
 #endif  // AST_H

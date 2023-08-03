@@ -5,6 +5,7 @@ std::vector<std::unique_ptr<DeclAST>> Parser::parseDeclList() {
   std::vector<std::unique_ptr<DeclAST>> declList;
   while (currKind() != eof) {
     declList.push_back(parseDecl());
+    if (currKind() == semi_colon) advanceCurrent();
   }
   return declList;
 }
@@ -55,16 +56,18 @@ std::unique_ptr<PrototypeAST> Parser::parseProtoType(TokenKind kind,
     pos++;
   }
   advanceCurrent();
-  return std::make_unique<PrototypeAST>(kind, id, params);
+  return std::make_unique<PrototypeAST>(getCurrProgramPtr(), kind, id, params);
 }
 
 std::unique_ptr<FuncDeclAST> Parser::parseFuncDecl(TokenKind kind,
                                                    const Identifier &id) {
   std::unique_ptr<PrototypeAST> proto = parseProtoType(kind, id);
   if (currKind() == semi_colon) {
-    return std::make_unique<FuncDeclAST>(std::move(proto), nullptr);
+    return std::make_unique<FuncDeclAST>(getCurrProgramPtr(), std::move(proto),
+                                         nullptr);
   } else if (currKind() == o_brace) {
-    return std::make_unique<FuncDeclAST>(std::move(proto), parseBlockStmt());
+    return std::make_unique<FuncDeclAST>(getCurrProgramPtr(), std::move(proto),
+                                         parseBlockStmt());
   } else {
     return LogError<FuncDeclAST>("Error parsing function declaration!");
   }
@@ -73,10 +76,11 @@ std::unique_ptr<VarDeclAST> Parser::parseVarDecl(TokenKind kind,
                                                  const Identifier &id) {
   if (currKind() == semi_colon) {
     advanceCurrent();
-    return std::make_unique<VarDeclAST>(kind, id, nullptr);
+    return std::make_unique<VarDeclAST>(getCurrProgramPtr(), kind, id, nullptr);
   } else if (currKind() == equal) {
     advanceCurrent();
-    return std::make_unique<VarDeclAST>(kind, id, parseExpr());
+    return std::make_unique<VarDeclAST>(getCurrProgramPtr(), kind, id,
+                                        parseExpr());
   } else {
     return LogError<VarDeclAST>("Failed to parse variable declaration!");
   }

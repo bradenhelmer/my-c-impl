@@ -8,10 +8,15 @@ class VarDeclAST : public DeclAST, public StmtAST {
   TokenKind type;
   Identifier id;
   std::unique_ptr<ExprAST> expr;
+  std::weak_ptr<Program> programRoot;
 
  public:
-  VarDeclAST(TokenKind type, Identifier id, std::unique_ptr<ExprAST> expr)
-      : id(std::move(id)), type(type), expr(std::move(expr)) {}
+  VarDeclAST(std::weak_ptr<Program> programRoot, TokenKind type, Identifier id,
+             std::unique_ptr<ExprAST> expr)
+      : programRoot(programRoot),
+        id(std::move(id)),
+        type(type),
+        expr(std::move(expr)) {}
   void print(int indentation) const override;
   std::string getTypeString() const override { return "VarDecl"; }
   std::string getArrayId() const {
@@ -31,10 +36,15 @@ class PrototypeAST : public DeclAST {
   TokenKind type;
   Identifier id;
   std::vector<FuncParam> args;
+  std::weak_ptr<Program> programRoot;
 
  public:
-  PrototypeAST(TokenKind type, Identifier id, std::vector<FuncParam> args)
-      : type(type), id(std::move(id)), args(std::move(args)) {}
+  PrototypeAST(std::weak_ptr<Program> programRoot, TokenKind type,
+               Identifier id, std::vector<FuncParam> args)
+      : programRoot(programRoot),
+        type(type),
+        id(std::move(id)),
+        args(std::move(args)) {}
   std::string constructProtoString() const {
     std::string protoStr =
         '\'' + id.idStr + '\'' + " -> " + getPrimitiveName(type);
@@ -46,11 +56,15 @@ class PrototypeAST : public DeclAST {
 class FuncDeclAST : public DeclAST {
   std::unique_ptr<PrototypeAST> proto;
   std::unique_ptr<BlockStmtAST> body;
+  std::weak_ptr<Program> programRoot;
 
  public:
-  FuncDeclAST(std::unique_ptr<PrototypeAST> proto,
+  FuncDeclAST(std::weak_ptr<Program> programRoot,
+              std::unique_ptr<PrototypeAST> proto,
               std::unique_ptr<BlockStmtAST> body)
-      : proto(std::move(proto)), body(std::move(body)) {}
+      : programRoot(programRoot),
+        proto(std::move(proto)),
+        body(std::move(body)) {}
   void print(int indentation) const override;
   std::string getTypeString() const override { return "FuncDecl"; }
   virtual llvm::Value *codeGen() override;

@@ -13,7 +13,8 @@ std::unique_ptr<BlockStmtAST> Parser::parseBlockStmt() {
     } else {
       switch (currKind()) {
 	case identifier:
-	  stmtList.push_back(std::make_unique<ExprStmtAST>(parseExpr()));
+	  stmtList.push_back(
+	      std::make_unique<ExprStmtAST>(getCurrProgramPtr(), parseExpr()));
 	  break;
 	case kw_if:
 	  stmtList.push_back(parseCondStatement());
@@ -32,7 +33,8 @@ std::unique_ptr<BlockStmtAST> Parser::parseBlockStmt() {
     advanceCurrent();
   }
   advanceCurrent();
-  return std::make_unique<BlockStmtAST>(std::move(stmtList));
+  return std::make_unique<BlockStmtAST>(getCurrProgramPtr(),
+                                        std::move(stmtList));
 }
 
 std::unique_ptr<BlockStmtAST> Parser::parseCondStatement() {}
@@ -40,5 +42,5 @@ std::unique_ptr<BlockStmtAST> Parser::parseCondStatement() {}
 std::unique_ptr<BlockStmtAST> Parser::parseIterStmt() {}
 
 std::unique_ptr<ReturnStmtAST> Parser::parseReturnStmt() {
-  return std::make_unique<ReturnStmtAST>(parseExpr());
+  return std::make_unique<ReturnStmtAST>(getCurrProgramPtr(), parseExpr());
 }

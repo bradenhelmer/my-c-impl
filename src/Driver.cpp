@@ -28,13 +28,13 @@ void Driver::executeToolchain() {
   std::vector<char> buf = processInputFile();
   Lexer lexer(&buf);
   Parser parser(lexer);
-  std::unique_ptr<Program> ast = parser.parseProgram();
+  std::shared_ptr<Program> ast = parser.parseProgram();
 }
 
 void Driver::printAST() {
   std::vector<char> buf = processInputFile();
   Lexer lexer(&buf);
   Parser parser(lexer);
-  std::unique_ptr<Program> ast = parser.parseProgram();
+  std::shared_ptr<Program> ast = parser.parseProgram();
   ast->print();
 }

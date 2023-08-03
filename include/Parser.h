@@ -15,19 +15,26 @@
 class Parser {
   Lexer lex;
   Token *currTok;
+  std::shared_ptr<Program> currentProgram;
 
  public:
-  Parser(Lexer &lex) : lex(lex) {}
+  Parser(Lexer &lex) : lex(lex) {
+    currentProgram = std::make_shared<Program>();
+  }
 
   // Parser entry point.
   // program -> declList
-  std::unique_ptr<Program> parseProgram();
+  std::shared_ptr<Program> parseProgram();
 
   // Node to log errors.
   template <typename T>
   static std::unique_ptr<T> LogError(const char *str) {
     fprintf(stderr, "Error: %s\n", str);
     return nullptr;
+  }
+
+  std::weak_ptr<Program> getCurrProgramPtr() const {
+    return currentProgram->weak_from_this();
   }
 
  private:

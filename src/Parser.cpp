@@ -5,12 +5,12 @@
 
 #include "Common.h"
 
-std::unique_ptr<Program> Parser::parseProgram() {
+std::shared_ptr<Program> Parser::parseProgram() {
   // Advance current token to begin parsing.
   advanceCurrent();
-
   // Parse
-  return std::make_unique<Program>(parseDeclList());
+  currentProgram->parse(parseDeclList());
+  return currentProgram;
 }
 
 void Parser::advanceCurrent() {

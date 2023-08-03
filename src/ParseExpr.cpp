@@ -5,7 +5,7 @@
 std::unique_ptr<NumConstAST> Parser::parseNumberExpr() {
   double val = lex.getNumericLiteral();
   advanceCurrent();
-  return std::make_unique<NumConstAST>(val);
+  return std::make_unique<NumConstAST>(getCurrProgramPtr(), val);
 }
 
 std::unique_ptr<CharConstAST> Parser::parseCharExpr() {
@@ -13,7 +13,7 @@ std::unique_ptr<CharConstAST> Parser::parseCharExpr() {
   if (currKind() != apost)
     return LogError<CharConstAST>("Missing closing apostrophe!");
   advanceCurrent();
-  return std::make_unique<CharConstAST>(char_const);
+  return std::make_unique<CharConstAST>(getCurrProgramPtr(), char_const);
 }
 
 std::unique_ptr<StringLiteralAST> Parser::parseStrLiteralExpr() {
@@ -21,7 +21,7 @@ std::unique_ptr<StringLiteralAST> Parser::parseStrLiteralExpr() {
   if (currKind() != quote)
     return LogError<StringLiteralAST>("Missing closing quote!");
   advanceCurrent();
-  return std::make_unique<StringLiteralAST>(str_literal);
+  return std::make_unique<StringLiteralAST>(getCurrProgramPtr(), str_literal);
 }
 
 std::unique_ptr<CallExprAST> Parser::parseCallExpr(Identifier &id) {
@@ -31,7 +31,8 @@ std::unique_ptr<CallExprAST> Parser::parseCallExpr(Identifier &id) {
     args.push_back(parseExpr());
   }
   advanceCurrent();
-  return std::make_unique<CallExprAST>(id.idStr, std::move(args));
+  return std::make_unique<CallExprAST>(getCurrProgramPtr(), id.idStr,
+                                       std::move(args));
 }
 std::unique_ptr<ExprAST> Parser::parseIdentifierExpr() {
   Identifier currId = lex.getIdentifier();
@@ -39,7 +40,7 @@ std::unique_ptr<ExprAST> Parser::parseIdentifierExpr() {
     advanceCurrent();
     return parseCallExpr(currId);
   }
-  return std::make_unique<VarExprAST>(currId.idStr);
+  return std::make_unique<VarExprAST>(getCurrProgramPtr(), currId.idStr);
 }
 
 std::unique_ptr<ExprAST> Parser::parseParentheseExpr() {
@@ -96,6 +97,7 @@ std::unique_ptr<ExprAST> Parser::parseBinaryOpExpr(std::unique_ptr<ExprAST> LHS,
           std::move(RHS), static_cast<Precedence>(prevPrec + !isRightAssoc));
       if (!RHS) return nullptr;
     }
-    LHS = std::make_unique<BinaryExprAST>(op, std::move(LHS), std::move(RHS));
+    LHS = std::make_unique<BinaryExprAST>(getCurrProgramPtr(), op,
+                                          std::move(LHS), std::move(RHS));
   }
 }

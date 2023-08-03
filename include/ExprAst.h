@@ -5,9 +5,11 @@
 
 class NumConstAST : public ExprAST {
   double numConst;
+  std::weak_ptr<Program> programRoot;
 
  public:
-  NumConstAST(double value) : numConst(value) {}
+  NumConstAST(std::weak_ptr<Program> programRoot, double value)
+      : programRoot(programRoot), numConst(value) {}
   void print(int indentation) const override;
   std::string getTypeString() const override { return "NumConst"; }
   virtual llvm::Value *codeGen() override;
@@ -15,9 +17,11 @@ class NumConstAST : public ExprAST {
 
 class CharConstAST : public ExprAST {
   char charConst;
+  std::weak_ptr<Program> programRoot;
 
  public:
-  CharConstAST(char charConst) : charConst(charConst) {}
+  CharConstAST(std::weak_ptr<Program> programRoot, char charConst)
+      : programRoot(programRoot), charConst(charConst) {}
   std::string getTypeString() const override { return "CharConst"; }
   void print(int indentation) const override;
   virtual llvm::Value *codeGen() override;
@@ -26,9 +30,12 @@ class CharConstAST : public ExprAST {
 class StringLiteralAST : public ExprAST {
   const std::string strLiteral;
   double length;
+  std::weak_ptr<Program> programRoot;
 
  public:
-  StringLiteralAST(const std::string &strLiteral) : strLiteral(strLiteral) {
+  StringLiteralAST(std::weak_ptr<Program> programRoot,
+                   const std::string &strLiteral)
+      : programRoot(programRoot), strLiteral(strLiteral) {
     length = strLiteral.size();
   }
   std::string getTypeString() const override { return "StrLiteral"; }
@@ -39,11 +46,15 @@ class StringLiteralAST : public ExprAST {
 class BinaryExprAST : public ExprAST {
   TokenKind op;
   std::unique_ptr<ExprAST> LHS, RHS;
+  std::weak_ptr<Program> programRoot;
 
  public:
-  BinaryExprAST(TokenKind op, std::unique_ptr<ExprAST> LHS,
-                std::unique_ptr<ExprAST> RHS)
-      : op(op), LHS(std::move(LHS)), RHS(std::move(RHS)) {}
+  BinaryExprAST(std::weak_ptr<Program> programRoot, TokenKind op,
+                std::unique_ptr<ExprAST> LHS, std::unique_ptr<ExprAST> RHS)
+      : programRoot(programRoot),
+        op(op),
+        LHS(std::move(LHS)),
+        RHS(std::move(RHS)) {}
   std::string getTypeString() const override { return "BinOpExp"; }
   void print(int indentation) const override;
   virtual llvm::Value *codeGen() override;
@@ -51,9 +62,11 @@ class BinaryExprAST : public ExprAST {
 
 class VarExprAST : public ExprAST {
   std::string name;
+  std::weak_ptr<Program> programRoot;
 
  public:
-  VarExprAST(const std::string &name) : name(name) {}
+  VarExprAST(std::weak_ptr<Program> programRoot, const std::string &name)
+      : programRoot(programRoot), name(name) {}
   std::string getTypeString() const override { return "VarExpr"; }
   void print(int indentation) const override;
   std::string constructVarString() const {
@@ -66,11 +79,12 @@ class VarExprAST : public ExprAST {
 class CallExprAST : public ExprAST {
   std::string callee;
   std::vector<std::unique_ptr<ExprAST>> args;
+  std::weak_ptr<Program> programRoot;
 
  public:
-  CallExprAST(const std::string &callee,
+  CallExprAST(std::weak_ptr<Program> programRoot, const std::string &callee,
               std::vector<std::unique_ptr<ExprAST>> args)
-      : callee(callee), args(std::move(args)) {}
+      : programRoot(programRoot), callee(callee), args(std::move(args)) {}
   void print(int indentation) const override;
   std::string getTypeString() const override { return "CallExpr"; }
   std::string constructCallStr() const {
