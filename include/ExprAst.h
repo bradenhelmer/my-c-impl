@@ -5,10 +5,10 @@
 
 class NumConstAST : public ExprAST {
   double numConst;
-  std::weak_ptr<Program> programRoot;
+  std::shared_ptr<Program> programRoot;
 
  public:
-  NumConstAST(std::weak_ptr<Program> programRoot, double value)
+  NumConstAST(std::shared_ptr<Program> programRoot, double value)
       : programRoot(programRoot), numConst(value) {}
   void print(int indentation) const override;
   std::string getTypeString() const override { return "NumConst"; }
@@ -17,10 +17,10 @@ class NumConstAST : public ExprAST {
 
 class CharConstAST : public ExprAST {
   char charConst;
-  std::weak_ptr<Program> programRoot;
+  std::shared_ptr<Program> programRoot;
 
  public:
-  CharConstAST(std::weak_ptr<Program> programRoot, char charConst)
+  CharConstAST(std::shared_ptr<Program> programRoot, char charConst)
       : programRoot(programRoot), charConst(charConst) {}
   std::string getTypeString() const override { return "CharConst"; }
   void print(int indentation) const override;
@@ -30,10 +30,10 @@ class CharConstAST : public ExprAST {
 class StringLiteralAST : public ExprAST {
   const std::string strLiteral;
   double length;
-  std::weak_ptr<Program> programRoot;
+  std::shared_ptr<Program> programRoot;
 
  public:
-  StringLiteralAST(std::weak_ptr<Program> programRoot,
+  StringLiteralAST(std::shared_ptr<Program> programRoot,
                    const std::string &strLiteral)
       : programRoot(programRoot), strLiteral(strLiteral) {
     length = strLiteral.size();
@@ -46,10 +46,10 @@ class StringLiteralAST : public ExprAST {
 class BinaryExprAST : public ExprAST {
   TokenKind op;
   std::unique_ptr<ExprAST> LHS, RHS;
-  std::weak_ptr<Program> programRoot;
+  std::shared_ptr<Program> programRoot;
 
  public:
-  BinaryExprAST(std::weak_ptr<Program> programRoot, TokenKind op,
+  BinaryExprAST(std::shared_ptr<Program> programRoot, TokenKind op,
                 std::unique_ptr<ExprAST> LHS, std::unique_ptr<ExprAST> RHS)
       : programRoot(programRoot),
         op(op),
@@ -62,10 +62,10 @@ class BinaryExprAST : public ExprAST {
 
 class VarExprAST : public ExprAST {
   std::string name;
-  std::weak_ptr<Program> programRoot;
+  std::shared_ptr<Program> programRoot;
 
  public:
-  VarExprAST(std::weak_ptr<Program> programRoot, const std::string &name)
+  VarExprAST(std::shared_ptr<Program> programRoot, const std::string &name)
       : programRoot(programRoot), name(name) {}
   std::string getTypeString() const override { return "VarExpr"; }
   void print(int indentation) const override;
@@ -79,10 +79,10 @@ class VarExprAST : public ExprAST {
 class CallExprAST : public ExprAST {
   std::string callee;
   std::vector<std::unique_ptr<ExprAST>> args;
-  std::weak_ptr<Program> programRoot;
+  std::shared_ptr<Program> programRoot;
 
  public:
-  CallExprAST(std::weak_ptr<Program> programRoot, const std::string &callee,
+  CallExprAST(std::shared_ptr<Program> programRoot, const std::string &callee,
               std::vector<std::unique_ptr<ExprAST>> args)
       : programRoot(programRoot), callee(callee), args(std::move(args)) {}
   void print(int indentation) const override;

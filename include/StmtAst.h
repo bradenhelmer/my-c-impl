@@ -5,10 +5,11 @@
 
 class ExprStmtAST : public StmtAST {
   std::unique_ptr<ExprAST> expr;
-  std::weak_ptr<Program> programRoot;
+  std::shared_ptr<Program> programRoot;
 
  public:
-  ExprStmtAST(std::weak_ptr<Program> programRoot, std::unique_ptr<ExprAST> expr)
+  ExprStmtAST(std::shared_ptr<Program> programRoot,
+              std::unique_ptr<ExprAST> expr)
       : programRoot(programRoot), expr(std::move(expr)) {}
   std::unique_ptr<ExprAST> &getExprRef() override { return expr; }
   void print(int indentation) const override;
@@ -18,10 +19,10 @@ class ExprStmtAST : public StmtAST {
 
 class BlockStmtAST : public StmtAST {
   std::vector<std::unique_ptr<StmtAST>> stmtList;
-  std::weak_ptr<Program> programRoot;
+  std::shared_ptr<Program> programRoot;
 
  public:
-  BlockStmtAST(std::weak_ptr<Program> programRoot,
+  BlockStmtAST(std::shared_ptr<Program> programRoot,
                std::vector<std::unique_ptr<StmtAST>> stmtList)
       : programRoot(programRoot), stmtList(std::move(stmtList)) {}
   void print(int indentation) const override;
@@ -31,10 +32,10 @@ class BlockStmtAST : public StmtAST {
 
 class ReturnStmtAST : public StmtAST {
   std::unique_ptr<ExprAST> returnExpr;
-  std::weak_ptr<Program> programRoot;
+  std::shared_ptr<Program> programRoot;
 
  public:
-  ReturnStmtAST(std::weak_ptr<Program> programRoot,
+  ReturnStmtAST(std::shared_ptr<Program> programRoot,
                 std::unique_ptr<ExprAST> returnExpr)
       : programRoot(programRoot), returnExpr(std::move(returnExpr)) {}
   void print(int indentation) const override;

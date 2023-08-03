@@ -33,8 +33,8 @@ class Parser {
     return nullptr;
   }
 
-  std::weak_ptr<Program> getCurrProgramPtr() const {
-    return currentProgram->weak_from_this();
+  std::shared_ptr<Program> getCurrProgramPtr() const {
+    return currentProgram->shared_from_this();
   }
 
  private:

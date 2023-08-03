@@ -8,11 +8,11 @@ class VarDeclAST : public DeclAST, public StmtAST {
   TokenKind type;
   Identifier id;
   std::unique_ptr<ExprAST> expr;
-  std::weak_ptr<Program> programRoot;
+  std::shared_ptr<Program> programRoot;
 
  public:
-  VarDeclAST(std::weak_ptr<Program> programRoot, TokenKind type, Identifier id,
-             std::unique_ptr<ExprAST> expr)
+  VarDeclAST(std::shared_ptr<Program> programRoot, TokenKind type,
+             Identifier id, std::unique_ptr<ExprAST> expr)
       : programRoot(programRoot),
         id(std::move(id)),
         type(type),
@@ -36,10 +36,10 @@ class PrototypeAST : public DeclAST {
   TokenKind type;
   Identifier id;
   std::vector<FuncParam> args;
-  std::weak_ptr<Program> programRoot;
+  std::shared_ptr<Program> programRoot;
 
  public:
-  PrototypeAST(std::weak_ptr<Program> programRoot, TokenKind type,
+  PrototypeAST(std::shared_ptr<Program> programRoot, TokenKind type,
                Identifier id, std::vector<FuncParam> args)
       : programRoot(programRoot),
         type(type),
@@ -56,10 +56,10 @@ class PrototypeAST : public DeclAST {
 class FuncDeclAST : public DeclAST {
   std::unique_ptr<PrototypeAST> proto;
   std::unique_ptr<BlockStmtAST> body;
-  std::weak_ptr<Program> programRoot;
+  std::shared_ptr<Program> programRoot;
 
  public:
-  FuncDeclAST(std::weak_ptr<Program> programRoot,
+  FuncDeclAST(std::shared_ptr<Program> programRoot,
               std::unique_ptr<PrototypeAST> proto,
               std::unique_ptr<BlockStmtAST> body)
       : programRoot(programRoot),
