@@ -44,12 +44,15 @@ class StmtAST : public AstNode {
   llvm::Value *codeGen() override {}
 };
 
+enum Scope : unsigned short { GLOBAL = 0, FUNC = 1 };
+
 class Program : public AstNode, public std::enable_shared_from_this<Program> {
   std::vector<std::unique_ptr<DeclAST>> declList;
   std::unique_ptr<llvm::LLVMContext> ctx;
   std::unique_ptr<llvm::IRBuilder<>> builder;
   std::unique_ptr<llvm::Module> module;
-  std::unique_ptr<std::map<std::string, llvm::Value *>> symbolTable;
+  std::unique_ptr<std::map<std::string, llvm::GlobalVariable *>> globals;
+  Scope currGenScope;
 
  public:
   Program();
@@ -60,14 +63,16 @@ class Program : public AstNode, public std::enable_shared_from_this<Program> {
     declList = std::move(decls);
   }
 
+  Scope getCurrScope() const { return currGenScope; }
+
   llvm::LLVMContext &getContext() const { return *ctx; }
 
   llvm::IRBuilder<> &getBuilder() const { return *builder; }
 
   llvm::Module &getModule() const { return *module; }
 
-  std::map<std::string, llvm::Value *> &getSymbolTable() const {
-    return *symbolTable;
+  std::map<std::string, llvm::GlobalVariable *> &getGlobals() const {
+    return *globals;
   }
 };
 

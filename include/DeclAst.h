@@ -51,12 +51,15 @@ class PrototypeAST : public DeclAST {
         '\'' + id.idStr + '\'' + " -> " + getPrimitiveName(type);
     return protoStr;
   }
-  llvm::Value *codeGen() override;
+  std::string getName() const { return id.idStr; }
+
+  llvm::Function *codeGen();
 };
 
 class FuncDeclAST : public DeclAST {
   std::unique_ptr<PrototypeAST> proto;
   std::unique_ptr<BlockStmtAST> body;
+  std::map<std::string, llvm::Value *> localVars;
   std::shared_ptr<Program> programRoot;
 
  public:
@@ -68,7 +71,7 @@ class FuncDeclAST : public DeclAST {
         body(std::move(body)) {}
   void print(int indentation) const override;
   std::string getTypeString() const override { return "FuncDecl"; }
-  llvm::Value *codeGen() override;
+  llvm::Function *codeGen() override;
 };
 
 #endif  // DECL_AST_H

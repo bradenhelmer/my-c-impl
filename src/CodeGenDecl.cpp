@@ -3,10 +3,9 @@
 #include "llvm.h"
 
 llvm::Value *VarDeclAST::codeGen() {
-  if (programRoot->getSymbolTable()[id.idStr])
+  if (programRoot->getGlobals()[id.idStr])
     return LogErrorV("Cannot re-declare variable!");
-  llvm::Type *expectedType =
-      getTypeFromPrimitive(programRoot->getContext(), type);
+  llvm::Type *expectedType = getIntType(programRoot->getContext(), type);
   llvm::Value *initial = llvm::UndefValue::get(expectedType);
   if (expr) {
     llvm::Value *exprVal = expr->codeGen();
@@ -15,8 +14,26 @@ llvm::Value *VarDeclAST::codeGen() {
           "Expression does not evaluate to type declared for variable!");
     initial = exprVal;
   }
-  programRoot->getSymbolTable()[id.idStr] = initial;
+  /* programRoot->getGlobals()[id.idStr] = initial; */
   return initial;
 }
-llvm::Value *FuncDeclAST::codeGen() {}
-llvm::Value *PrototypeAST::codeGen() {}
+
+llvm::Function *PrototypeAST::codeGen() {
+  std::vector<llvm::Type *> argTypes;
+  for (const auto &arg : args) {
+    argTypes.push_back(getIntType(programRoot->getContext(), arg.type));
+  }
+
+  llvm::FunctionType *FT = llvm::FunctionType::get(
+      type == kw_void ? getVoidType(programRoot->getContext())
+                      : getIntType(programRoot->getContext(), type),
+      argTypes, false);
+
+  llvm::Function *F = llvm::Function::Create(
+      FT, llvm::Function::ExternalLinkage, id.idStr, programRoot->getModule());
+  unsigned idx = 0;
+  for (auto &arg : F->args()) arg.setName(args[idx++].id.idStr);
+  return F;
+}
+
+llvm::Function *FuncDeclAST::codeGen() {}
