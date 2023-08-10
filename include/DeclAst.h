@@ -72,6 +72,11 @@ class FuncDeclAST : public DeclAST {
   void print(int indentation) const override;
   std::string getTypeString() const override { return "FuncDecl"; }
   llvm::Function *codeGen() override;
+
+  static llvm::Function *LogErrorF(const char *str) {
+    fprintf(stderr, "Error: %s\n", str);
+    return nullptr;
+  }
 };
 
 #endif  // DECL_AST_H

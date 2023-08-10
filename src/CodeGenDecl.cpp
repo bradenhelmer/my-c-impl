@@ -1,10 +1,25 @@
 // Declaration code generation
+#include <llvm/IR/Verifier.h>
+
 #include "DeclAst.h"
 #include "llvm.h"
 
 llvm::Value *VarDeclAST::codeGen() {
-  if (programRoot->getGlobals()[id.idStr])
-    return LogErrorV("Cannot re-declare variable!");
+  Scope curr = programRoot->getCurrScope();
+  switch (curr) {
+    case GLOBAL:
+      if (programRoot->getGlobals()[id.idStr])
+	return LogErrorV("Cannot redeclare global variable!");
+      break;
+    case FUNC:
+      if (programRoot->getFuncVals()[id.idStr])
+	return LogErrorV("Cannot redeclare function scoped variable!");
+      break;
+    case COND:
+      if (programRoot->getCondVals()[id.idStr])
+	return LogErrorV("Cannot redeclare condition variable!");
+      break;
+  }
   llvm::Type *expectedType = getIntType(programRoot->getContext(), type);
   llvm::Value *initial = llvm::UndefValue::get(expectedType);
   if (expr) {
@@ -14,7 +29,24 @@ llvm::Value *VarDeclAST::codeGen() {
           "Expression does not evaluate to type declared for variable!");
     initial = exprVal;
   }
-  /* programRoot->getGlobals()[id.idStr] = initial; */
+  switch (curr) {
+    case GLOBAL: {
+      llvm::GlobalVariable *global = new llvm::GlobalVariable(
+          programRoot->getModule(), initial->getType(), false,
+          llvm::GlobalVariable::ExternalLinkage,
+          llvm::dyn_cast<llvm::Constant>(initial), id.idStr);
+      programRoot->getBuilder().GetInsertBlock()->print(llvm::outs());
+      programRoot->getBuilder().CreateLoad(initial->getType(), global, "glb");
+      programRoot->getGlobals()[id.idStr] = global;
+      break;
+    }
+    case FUNC:
+      programRoot->getFuncVals()[id.idStr] = initial;
+      break;
+    case COND:
+      programRoot->getCondVals()[id.idStr] = initial;
+      break;
+  }
   return initial;
 }
 
@@ -36,4 +68,36 @@ llvm::Function *PrototypeAST::codeGen() {
   return F;
 }
 
-llvm::Function *FuncDeclAST::codeGen() {}
+llvm::Function *FuncDeclAST::codeGen() {
+  // Tell the root node we are in function scope
+  programRoot->setFuncScope();
+  programRoot->setCurrFuncMapValPtr(&localVars);
+
+  llvm::Function *func = programRoot->getModule().getFunction(proto->getName());
+
+  if (!func) func = proto->codeGen();
+  if (!func) return nullptr;
+  if (!func->empty()) return LogErrorF("Cannot redefine function!");
+
+  llvm::BasicBlock *BB = llvm::BasicBlock::Create(programRoot->getContext(),
+                                                  proto->getName(), func);
+  programRoot->getBuilder().SetInsertPoint(BB);
+
+  // Make arguments available to function scope
+  localVars.clear();
+  for (auto &arg : func->args()) {
+    localVars[std::string(arg.getName())] = &arg;
+  }
+
+  if (llvm::Value *retVal = body->codeGen()) {
+    programRoot->getBuilder().CreateRet(retVal);
+    llvm::verifyFunction(*func);
+
+    // Unset global scope notifier and clear insertion point
+    programRoot->setGlobalScope();
+    programRoot->setGlobalInsertion();
+    return func;
+  }
+  func->eraseFromParent();
+  return nullptr;
+}

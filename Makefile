@@ -17,21 +17,24 @@ SRC = $(wildcard $(SRC_DIR)/*.cpp)
 HEADERS = $(wildcard $(INCLUDE_DIR)/*.h)
 OBJ = $(patsubst $(SRC_DIR)/%.cpp, $(OBJS_DIR)/%.o, $(SRC))
 
+RUN_ARGS = $(BIN)/lang --exec $(BIN)/"TestFile.lang"
+PRINT_ARGS = $(BIN)/lang --print $(BIN)/"TestFile.lang"
+
 .PHONY: all clean
 
 all: clean dirs lang
 
 dbg: clean dirs lang
-	gdb -q --args $(BIN)/lang $(BIN)/"TestFile.lang"
+	gdb -q --args $(RUN_ARGS)
 
 dirs:
 	mkdir -p ./$(BIN) ./$(OBJS_DIR)
 
 run: all
-	$(BIN)/lang --exec $(BIN)/"TestFile.lang"
+	$(RUN_ARGS)
 
 print: all
-	$(BIN)/lang --print $(BIN)/"TestFile.lang"
+	$(PRINT_ARGS)
 
 re:
 	$(BIN)/lang --exec $(BIN)/"TestFile.lang"

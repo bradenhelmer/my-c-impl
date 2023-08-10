@@ -44,15 +44,33 @@ class StmtAST : public AstNode {
   llvm::Value *codeGen() override {}
 };
 
-enum Scope : unsigned short { GLOBAL = 0, FUNC = 1 };
+enum Scope : unsigned short { GLOBAL = 0, FUNC = 1, COND = 2 };
 
 class Program : public AstNode, public std::enable_shared_from_this<Program> {
+  // Top Level Declarations of the program
   std::vector<std::unique_ptr<DeclAST>> declList;
+
+  // LLVM Things
   std::unique_ptr<llvm::LLVMContext> ctx;
-  std::unique_ptr<llvm::IRBuilder<>> builder;
   std::unique_ptr<llvm::Module> module;
-  std::unique_ptr<std::map<std::string, llvm::GlobalVariable *>> globals;
-  Scope currGenScope;
+  llvm::Function *main;
+  llvm::BasicBlock *entry;
+  std::unique_ptr<llvm::IRBuilder<>> builder;
+
+  // Current scope
+  Scope currGenScope = GLOBAL;
+
+  // Global scoped variables and coressponding vals.
+  std::map<std::string, llvm::GlobalVariable *> globals;
+
+  // Pointer to current function scoped values being generated.
+  std::map<std::string, llvm::Value *> *currFuncVals = nullptr;
+
+  // Pointer to current condition scoped values being generated.
+  std::map<std::string, llvm::Value *> *currCondVals = nullptr;
+
+  // Initializes the main (global) function for the program root.
+  void initMainFunction();
 
  public:
   Program();
@@ -63,16 +81,38 @@ class Program : public AstNode, public std::enable_shared_from_this<Program> {
     declList = std::move(decls);
   }
 
-  Scope getCurrScope() const { return currGenScope; }
-
   llvm::LLVMContext &getContext() const { return *ctx; }
 
   llvm::IRBuilder<> &getBuilder() const { return *builder; }
 
   llvm::Module &getModule() const { return *module; }
 
-  std::map<std::string, llvm::GlobalVariable *> &getGlobals() const {
-    return *globals;
+  Scope getCurrScope() const { return currGenScope; }
+
+  void setGlobalScope() { currGenScope = GLOBAL; }
+
+  void setFuncScope() { currGenScope = FUNC; }
+
+  void setCondScope() { currGenScope = COND; }
+
+  std::map<std::string, llvm::GlobalVariable *> &getGlobals() {
+    return globals;
+  }
+
+  std::map<std::string, llvm::Value *> &getFuncVals() { return *currFuncVals; }
+
+  std::map<std::string, llvm::Value *> &getCondVals() { return *currCondVals; }
+
+  void setCurrFuncMapValPtr(std::map<std::string, llvm::Value *> *ptr) {
+    currFuncVals = ptr;
+  }
+  void setCurrCondMapValPtr(std::map<std::string, llvm::Value *> *ptr) {
+    currCondVals = ptr;
+  }
+
+  void setGlobalInsertion() {
+    builder->ClearInsertionPoint();
+    builder->SetInsertPoint(entry);
   }
 };
 

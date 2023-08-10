@@ -50,9 +50,38 @@ llvm::Value *BinaryExprAST::codeGen() {
 }
 
 llvm::Value *VarExprAST::codeGen() {
-  llvm::Value *varVal = programRoot->getGlobals()[name];
-  if (!varVal) return LogErrorV("Variable doesnt exist!");
-  return varVal;
+  llvm::Value *varVal;
+  switch (programRoot->getCurrScope()) {
+    case GLOBAL: {
+      if ((varVal = programRoot->getGlobals()[name])) {
+	return varVal;
+      } else {
+	return LogErrorV("Variable not found!");
+      }
+    }
+    case FUNC: {
+      if ((varVal = programRoot->getFuncVals()[name])) {
+	return varVal;
+      } else if ((varVal = programRoot->getGlobals()[name])) {
+	return varVal;
+      } else {
+	return LogErrorV("Variable not found!");
+      }
+    }
+    case COND: {
+      if ((varVal = programRoot->getCondVals()[name])) {
+	return varVal;
+      } else if ((varVal = programRoot->getFuncVals()[name])) {
+	return varVal;
+      } else if ((varVal = programRoot->getGlobals()[name])) {
+	return varVal;
+      } else {
+	return LogErrorV("Variable not found!");
+      }
+    }
+    default:
+      return LogErrorV("Error retrieving variable");
+  }
 }
 llvm::Value *CallExprAST::codeGen() {
   llvm::Function *calleeF = programRoot->getModule().getFunction(callee);
