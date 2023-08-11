@@ -35,8 +35,8 @@ llvm::Value *VarDeclAST::codeGen() {
           programRoot->getModule(), initial->getType(), false,
           llvm::GlobalVariable::ExternalLinkage,
           llvm::dyn_cast<llvm::Constant>(initial), id.idStr);
-      programRoot->getBuilder().GetInsertBlock()->print(llvm::outs());
-      programRoot->getBuilder().CreateLoad(initial->getType(), global, "glb");
+      /* programRoot->getBuilder().CreateLoad(initial->getType(), global,
+       * "glb"); */
       programRoot->getGlobals()[id.idStr] = global;
       break;
     }
@@ -95,7 +95,6 @@ llvm::Function *FuncDeclAST::codeGen() {
 
     // Unset global scope notifier and clear insertion point
     programRoot->setGlobalScope();
-    programRoot->setGlobalInsertion();
     return func;
   }
   func->eraseFromParent();

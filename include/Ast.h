@@ -53,8 +53,6 @@ class Program : public AstNode, public std::enable_shared_from_this<Program> {
   // LLVM Things
   std::unique_ptr<llvm::LLVMContext> ctx;
   std::unique_ptr<llvm::Module> module;
-  llvm::Function *main;
-  llvm::BasicBlock *entry;
   std::unique_ptr<llvm::IRBuilder<>> builder;
 
   // Current scope
@@ -68,9 +66,6 @@ class Program : public AstNode, public std::enable_shared_from_this<Program> {
 
   // Pointer to current condition scoped values being generated.
   std::map<std::string, llvm::Value *> *currCondVals = nullptr;
-
-  // Initializes the main (global) function for the program root.
-  void initMainFunction();
 
  public:
   Program();
@@ -108,11 +103,6 @@ class Program : public AstNode, public std::enable_shared_from_this<Program> {
   }
   void setCurrCondMapValPtr(std::map<std::string, llvm::Value *> *ptr) {
     currCondVals = ptr;
-  }
-
-  void setGlobalInsertion() {
-    builder->ClearInsertionPoint();
-    builder->SetInsertPoint(entry);
   }
 };
 

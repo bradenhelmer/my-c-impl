@@ -59,7 +59,7 @@ void Lexer::advanceToken() {
     case '"':
       currentToken.kind = quote;
       break;
-    case '\'':
+    case 39:
       currentToken.kind = apost;
       break;
     case '=':
