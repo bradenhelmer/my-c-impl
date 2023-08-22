@@ -28,7 +28,6 @@ std::vector<char> Driver::processInputFile() {
 void Driver::executeToolchain() {
   std::vector<char> buf = processInputFile();
   Lexer lexer(&buf);
-  lexer.lexAndPrintTokens();
   Parser parser(lexer);
   std::shared_ptr<Program> ast = parser.parseProgram();
   ast->codeGen();
@@ -39,6 +38,7 @@ void Driver::printAST() {
   std::vector<char> buf = processInputFile();
   Lexer lexer(&buf);
   Parser parser(lexer);
+  lexer.lexAndPrintTokens();
   std::shared_ptr<Program> ast = parser.parseProgram();
   ast->print();
 }

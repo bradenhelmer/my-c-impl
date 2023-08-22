@@ -14,7 +14,7 @@ Lexer::Lexer(std::vector<char> *buffer) : buffer(buffer) {
       .end = nullptr,
       .length = 0,
   };
-  bufPtr = &*buffer->begin();
+  bufPtr = buffer->begin().base();
 }
 
 void Lexer::advanceToken() {
@@ -28,7 +28,7 @@ void Lexer::advanceToken() {
   const char peek = *(bufPtr + 1);
   switch (*bufPtr) {
     case 0:
-      if (bufPtr == &*buffer->end() - 1) {
+      if (bufPtr == buffer->end().base() - 1) {
 	currentToken.kind = eof;
 	return;
       }
@@ -268,7 +268,6 @@ void Lexer::lexIdentifier() {
     currentToken.length++;
   } while (isalpha(*bufPtr) || *bufPtr == '_');
   currentToken.end = bufPtr - 1;
-  bufPtr++;
   std::string ident(currentToken.start, currentToken.end + 1);
   if (isKeyword(ident)) {
     currentToken.kind = getKeywordToken(ident);
@@ -278,7 +277,7 @@ void Lexer::lexIdentifier() {
 void Lexer::lexAndPrintTokens() {
   std::cout << "Lexing Tokens\n-------------\n";
   char *saved = bufPtr;
-  bufPtr = &*buffer->begin();
+  bufPtr = buffer->begin().base();
   advanceToken();
   int count = 1;
   while (currentToken.kind != eof) {
@@ -286,6 +285,7 @@ void Lexer::lexAndPrintTokens() {
     advanceToken();
   }
   printToken(count);
+  LLVM_OUT_NL("");
   bufPtr = saved;
 }
 
@@ -314,7 +314,6 @@ Identifier Lexer::getIdentifier() {
     advanceToken();
     ASSERT(currentToken.kind == c_bracket);
     id.isArray = true;
-    advanceToken();
   }
   return id;
 }

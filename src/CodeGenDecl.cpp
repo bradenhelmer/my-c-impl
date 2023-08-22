@@ -87,14 +87,14 @@ llvm::Function *FuncDeclAST::codeGen() {
     localVars[std::string(arg.getName())] = &arg;
   }
 
-  if (llvm::Value *retVal = body->codeGen()) {
-    programRoot->getBuilder().CreateRet(retVal);
-    llvm::verifyFunction(*func);
-
+  body->codeGen();
+  if (!llvm::verifyFunction(*func, &llvm::errs())) {
     // Unset global scope notifier and clear insertion point
     programRoot->setGlobalScope();
+    programRoot->getBuilder().ClearInsertionPoint();
     return func;
   }
+
   func->eraseFromParent();
   return nullptr;
 }

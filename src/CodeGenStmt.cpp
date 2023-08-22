@@ -2,5 +2,16 @@
 #include "StmtAst.h"
 
 llvm::Value *ExprStmtAST::codeGen() {}
-llvm::Value *BlockStmtAST::codeGen() {}
-llvm::Value *ReturnStmtAST::codeGen() {}
+
+llvm::Value *BlockStmtAST::codeGen() {
+  for (const auto &stmt : stmtList) {
+    stmt->codeGen();
+  }
+  return nullptr;
+}
+
+llvm::Value *ReturnStmtAST::codeGen() {
+  llvm::Value *returnVal = returnExpr->codeGen();
+  programRoot->getBuilder().CreateRet(returnVal);
+  return returnVal;
+};
