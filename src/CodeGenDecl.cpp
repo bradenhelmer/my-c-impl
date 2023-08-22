@@ -35,8 +35,6 @@ llvm::Value *VarDeclAST::codeGen() {
           programRoot->getModule(), initial->getType(), false,
           llvm::GlobalVariable::ExternalLinkage,
           llvm::dyn_cast<llvm::Constant>(initial), id.idStr);
-      /* programRoot->getBuilder().CreateLoad(initial->getType(), global,
-       * "glb"); */
       programRoot->getGlobals()[id.idStr] = global;
       break;
     }

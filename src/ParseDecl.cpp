@@ -11,8 +11,9 @@ std::vector<std::unique_ptr<DeclAST>> Parser::parseDeclList() {
 }
 
 std::unique_ptr<DeclAST> Parser::parseDecl() {
-  if (!isPrimitive(currKind()))
+  if (!isPrimitive(currKind())) {
     return LogError<DeclAST>("Expected type specifer!");
+  }
   TokenKind kind = currKind();
   advanceCurrent();
   if (!isIdentifer(currKind()))

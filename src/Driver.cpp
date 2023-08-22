@@ -20,6 +20,7 @@ std::vector<char> Driver::processInputFile() {
   while (sourceFile.get(curr)) {
     source.push_back(curr);
   }
+  source.push_back(0);
   sourceFile.close();
   return source;
 }
@@ -27,6 +28,7 @@ std::vector<char> Driver::processInputFile() {
 void Driver::executeToolchain() {
   std::vector<char> buf = processInputFile();
   Lexer lexer(&buf);
+  lexer.lexAndPrintTokens();
   Parser parser(lexer);
   std::shared_ptr<Program> ast = parser.parseProgram();
   ast->codeGen();

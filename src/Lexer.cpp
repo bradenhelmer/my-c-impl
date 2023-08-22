@@ -28,9 +28,9 @@ void Lexer::advanceToken() {
   const char peek = *(bufPtr + 1);
   switch (*bufPtr) {
     case 0:
-      if (bufPtr == &*buffer->end()) {
+      if (bufPtr == &*buffer->end() - 1) {
 	currentToken.kind = eof;
-	break;
+	return;
       }
     case '(':
       currentToken.kind = o_paren;
@@ -59,7 +59,7 @@ void Lexer::advanceToken() {
     case '"':
       currentToken.kind = quote;
       break;
-    case 39:
+    case '\'':
       currentToken.kind = apost;
       break;
     case '=':
@@ -175,13 +175,16 @@ void Lexer::advanceToken() {
     case 'I':
     case 'J':
     case 'K':
+    case 'L':
     case 'M':
     case 'N':
     case 'O':
     case 'P':
     case 'Q':
+    case 'R':
     case 'S':
     case 'T':
+    case 'U':
     case 'V':
     case 'W':
     case 'X':
@@ -207,6 +210,7 @@ void Lexer::advanceToken() {
     case 'r':
     case 's':
     case 't':
+    case 'u':
     case 'v':
     case 'w':
     case 'x':
@@ -264,6 +268,7 @@ void Lexer::lexIdentifier() {
     currentToken.length++;
   } while (isalpha(*bufPtr) || *bufPtr == '_');
   currentToken.end = bufPtr - 1;
+  bufPtr++;
   std::string ident(currentToken.start, currentToken.end + 1);
   if (isKeyword(ident)) {
     currentToken.kind = getKeywordToken(ident);
@@ -272,6 +277,8 @@ void Lexer::lexIdentifier() {
 
 void Lexer::lexAndPrintTokens() {
   std::cout << "Lexing Tokens\n-------------\n";
+  char *saved = bufPtr;
+  bufPtr = &*buffer->begin();
   advanceToken();
   int count = 1;
   while (currentToken.kind != eof) {
@@ -279,6 +286,7 @@ void Lexer::lexAndPrintTokens() {
     advanceToken();
   }
   printToken(count);
+  bufPtr = saved;
 }
 
 void Lexer::printToken(int num) {
