@@ -54,27 +54,27 @@ llvm::Value *VarExprAST::codeGen() {
   switch (programRoot->getCurrScope()) {
     case GLOBAL: {
       if ((varVal = programRoot->getGlobals()[name])) {
-	return varVal;
+	return loadGlobal(varVal, programRoot->getBuilder());
       } else {
 	return LogErrorV("Variable not found!");
       }
     }
     case FUNC: {
       if ((varVal = programRoot->getFuncVals()[name])) {
-	return varVal;
+	break;
       } else if ((varVal = programRoot->getGlobals()[name])) {
-	return varVal;
+	return loadGlobal(varVal, programRoot->getBuilder());
       } else {
 	return LogErrorV("Variable not found!");
       }
     }
     case COND: {
       if ((varVal = programRoot->getCondVals()[name])) {
-	return varVal;
+	break;
       } else if ((varVal = programRoot->getFuncVals()[name])) {
-	return varVal;
+	break;
       } else if ((varVal = programRoot->getGlobals()[name])) {
-	return varVal;
+	return loadGlobal(varVal, programRoot->getBuilder());
       } else {
 	return LogErrorV("Variable not found!");
       }

@@ -11,7 +11,5 @@ llvm::Value *BlockStmtAST::codeGen() {
 }
 
 llvm::Value *ReturnStmtAST::codeGen() {
-  llvm::Value *returnVal = returnExpr->codeGen();
-  programRoot->getBuilder().CreateRet(returnVal);
-  return returnVal;
+  return programRoot->getBuilder().CreateRet(returnExpr->codeGen());
 };

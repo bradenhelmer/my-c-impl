@@ -1,6 +1,8 @@
 // LLVM related functions and items
 #ifndef LANG_LLVM_H
 #define LANG_LLVM_H
+#include <llvm/IR/IRBuilder.h>
+#include <llvm/IR/Instructions.h>
 #include <llvm/IR/Type.h>
 
 #include <functional>
@@ -16,5 +18,7 @@ static llvm::Type *getVoidType(llvm::LLVMContext &context) {
 }
 
 llvm::IntegerType *getIntType(llvm::LLVMContext &context, TokenKind kind);
+
+llvm::LoadInst *loadGlobal(llvm::Value *val, llvm::IRBuilder<> &builder);
 
 #endif  // LANG_LLVM_H
