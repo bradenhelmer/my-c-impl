@@ -82,6 +82,7 @@ llvm::Value *VarExprAST::codeGen() {
     default:
       return LogErrorV("Error retrieving variable");
   }
+  return varVal;
 }
 llvm::Value *CallExprAST::codeGen() {
   llvm::Function *calleeF = programRoot->getModule().getFunction(callee);

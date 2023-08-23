@@ -16,7 +16,7 @@ std::unique_ptr<DeclAST> Parser::parseDecl() {
   }
   TokenKind kind = currKind();
   advanceCurrent();
-  if (!isIdentifer(currKind()))
+  if (!isIdentifier(currKind()))
     return LogError<DeclAST>("Expected identifier!");
 
   const Identifier id = lex.getIdentifier();
@@ -47,7 +47,7 @@ std::unique_ptr<PrototypeAST> Parser::parseProtoType(TokenKind kind,
 
     currParamKind = currKind();
     advanceCurrent();
-    if (!isIdentifer(currKind()))
+    if (!isIdentifier(currKind()))
 
       return LogError<PrototypeAST>(
           "Expected identifier when parsing function arguments!");

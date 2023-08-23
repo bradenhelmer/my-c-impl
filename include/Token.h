@@ -66,7 +66,7 @@ inline static bool isKeyword(std::string ident) {
   return kw != keywords.end();
 }
 
-inline static bool isIdentifer(TokenKind kind) { return kind == identifier; }
+inline static bool isIdentifier(TokenKind kind) { return kind == identifier; }
 
 inline static bool isPrimitive(TokenKind kind) {
   switch (kind) {

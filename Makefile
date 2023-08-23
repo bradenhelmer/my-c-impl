@@ -46,8 +46,19 @@ rep:
 lang: $(OBJ)
 	$(CXX) $^ $(CXXFLAGS) $(LDFLAGS) -o $(BIN)/lang
 
+singler: single lang re
+singlep: single lang rep
+
 $(OBJS_DIR)/%.o: $(SRC_DIR)/%.cpp
 	$(CXX) $(CXXFLAGS) -o $@ -c $< 
+
+.PHONY: single
+single:
+	if [ -z "$(FILE)" ]; then \
+			echo "Missing .cpp file specified"; \
+		else \
+			$(CXX) $(CXXFLAGS) -o $(OBJS_DIR)/$(notdir $(FILE)).o -c $(FILE); \
+		fi
 
 fmt:
 	clang-format -i  $(SRC) $(HEADERS)
