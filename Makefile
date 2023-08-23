@@ -3,7 +3,7 @@ CXX = clang++
 CXXFLAGS = -g
 CXXFLAGS += -Iinclude
 
-LLVM_LDFLAGS = $(shell llvm-config --system-libs --libs core)
+LLVM_LDFLAGS = $(shell llvm-config --system-libs --libs core orcjit native)
 LLVM_CXXFLAGS = $(shell llvm-config --cxxflags)
 
 CXXFLAGS += $(LLVM_CXXFLAGS)
@@ -46,11 +46,11 @@ rep:
 lang: $(OBJ)
 	$(CXX) $^ $(CXXFLAGS) $(LDFLAGS) -o $(BIN)/lang
 
-singler: single lang re
-singlep: single lang rep
-
 $(OBJS_DIR)/%.o: $(SRC_DIR)/%.cpp
 	$(CXX) $(CXXFLAGS) -o $@ -c $< 
+
+singler: single lang re
+singlep: single lang rep
 
 .PHONY: single
 single:

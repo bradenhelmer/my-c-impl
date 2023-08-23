@@ -8,6 +8,7 @@
 #include <llvm/IR/LLVMContext.h>
 #include <llvm/IR/Module.h>
 #include <llvm/IR/Value.h>
+#include <llvm/Passes/PassBuilder.h>
 
 #include <memory>
 #include <vector>
@@ -50,10 +51,18 @@ class Program : public AstNode, public std::enable_shared_from_this<Program> {
   // Top Level Declarations of the program
   std::vector<std::unique_ptr<DeclAST>> declList;
 
-  // LLVM Things
+  // LLVM Base members
   std::unique_ptr<llvm::LLVMContext> ctx;
   std::unique_ptr<llvm::Module> module;
   std::unique_ptr<llvm::IRBuilder<>> builder;
+
+  // LLVM Optimization members
+  std::unique_ptr<llvm::FunctionPassManager> FPM;
+  std::unique_ptr<llvm::ModulePassManager> MPM;
+  std::unique_ptr<llvm::LoopAnalysisManager> LAM;
+  std::unique_ptr<llvm::FunctionAnalysisManager> FAM;
+  std::unique_ptr<llvm::CGSCCAnalysisManager> CGAM;
+  std::unique_ptr<llvm::ModuleAnalysisManager> MAM;
 
   // Current scope
   Scope currGenScope = GLOBAL;
@@ -66,6 +75,16 @@ class Program : public AstNode, public std::enable_shared_from_this<Program> {
 
   // Pointer to current condition scoped values being generated.
   std::map<std::string, llvm::Value *> *currCondVals = nullptr;
+
+  // Initializes all analysis managers.
+  void initAnalysisManagers();
+  // Initializes module and function pass managers.
+  void initPassManagers();
+
+  // Runs the default optimization pipeline for the module.
+  void runDefaultOptimization() const {
+    getModulePassManager().run(getModule(), getModuleAnalysisManager());
+  }
 
  public:
   Program();
@@ -81,6 +100,20 @@ class Program : public AstNode, public std::enable_shared_from_this<Program> {
   llvm::IRBuilder<> &getBuilder() const { return *builder; }
 
   llvm::Module &getModule() const { return *module; }
+
+  llvm::FunctionPassManager &getFuncPassManager() const { return *FPM; }
+
+  llvm::ModulePassManager &getModulePassManager() const { return *MPM; }
+
+  llvm::LoopAnalysisManager &getLoopAnalysisManager() const { return *LAM; }
+
+  llvm::FunctionAnalysisManager &getFunctionAnalysisManager() const {
+    return *FAM;
+  }
+
+  llvm::CGSCCAnalysisManager &getCGSCCAnalysisManager() const { return *CGAM; }
+
+  llvm::ModuleAnalysisManager &getModuleAnalysisManager() const { return *MAM; }
 
   Scope getCurrScope() const { return currGenScope; }
 

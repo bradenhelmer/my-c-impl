@@ -89,8 +89,13 @@ llvm::Function *FuncDeclAST::codeGen() {
 
   body->codeGen();
   if (!llvm::verifyFunction(*func, &llvm::errs())) {
-    // Unset global scope notifier and clear insertion point
+    // Run basic function optimizations
+    programRoot->getFuncPassManager().run(
+        *func, programRoot->getFunctionAnalysisManager());
+
+    // Unset global scope notifier, func val ptr,  and clear insertion point
     programRoot->setGlobalScope();
+    programRoot->setCurrFuncMapValPtr(nullptr);
     programRoot->getBuilder().ClearInsertionPoint();
     return func;
   }
