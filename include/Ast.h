@@ -56,9 +56,11 @@ class Program : public AstNode, public std::enable_shared_from_this<Program> {
   std::unique_ptr<llvm::Module> module;
   std::unique_ptr<llvm::IRBuilder<>> builder;
 
-  // LLVM Optimization members
+  // LLVM Pass Managers
   std::unique_ptr<llvm::FunctionPassManager> FPM;
   std::unique_ptr<llvm::ModulePassManager> MPM;
+
+  // LLVM Analysis Managers
   std::unique_ptr<llvm::LoopAnalysisManager> LAM;
   std::unique_ptr<llvm::FunctionAnalysisManager> FAM;
   std::unique_ptr<llvm::CGSCCAnalysisManager> CGAM;
