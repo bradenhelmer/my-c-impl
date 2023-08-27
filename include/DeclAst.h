@@ -59,8 +59,11 @@ class PrototypeAST : public DeclAST {
 class FuncDeclAST : public DeclAST {
   std::unique_ptr<PrototypeAST> proto;
   std::unique_ptr<BlockStmtAST> body;
-  std::map<std::string, llvm::Value *> localVars;
+  std::map<std::string, llvm::AllocaInst *> localVars;
   std::shared_ptr<Program> programRoot;
+  llvm::AllocaInst *createEntryBlockAlloca(llvm::Function *func,
+                                           llvm::Type *argType,
+                                           const std::string &varName);
 
  public:
   FuncDeclAST(std::shared_ptr<Program> programRoot,

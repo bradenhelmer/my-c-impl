@@ -13,18 +13,3 @@ llvm::IntegerType *getIntType(llvm::LLVMContext &context, TokenKind kind) {
       return nullptr;
   }
 }
-
-llvm::LoadInst *loadGlobal(llvm::Value *val, llvm::IRBuilder<> &builder) {
-  llvm::GlobalVariable *G = llvm::cast<llvm::GlobalVariable>(val);
-  return builder.CreateLoad(G->getValueType(), G);
-}
-
-bool checkExpectedType(llvm::Type *expected, llvm::Type *evaluated,
-                       TokenKind primitive) {
-  switch (primitive) {
-    case kw_char:
-
-      break;
-    default:
-  }
-}

@@ -21,7 +21,12 @@ llvm::Value *BinaryExprAST::codeGen() {
 
   if (!leftVal || !rightVal) return LogErrorV("Could not evaluate expression!");
 
+  /* if (isAssignmentOperator(op)) return codeGenAssignment(leftVal, rightVal,
+   * op); */
+
   switch (op) {
+    case equal:
+      return programRoot->getBuilder().CreateStore(rightVal, leftVal);
     case plus:
       return programRoot->getBuilder().CreateAdd(leftVal, rightVal, "addtmp");
     case minus:
@@ -49,32 +54,53 @@ llvm::Value *BinaryExprAST::codeGen() {
   }
 }
 
+llvm::Value *BinaryExprAST::codeGenAssignment(llvm::Value *RHS,
+                                              llvm::Value *LHS, TokenKind op) {
+  switch (op) {
+    case equal:
+      return programRoot->getBuilder().CreateStore(LHS, RHS);
+    case plus_equal:
+      break;
+    case minus_equal:
+      break;
+    case star_equal:
+      break;
+    case slash_equal:
+      break;
+    default:
+      break;
+  }
+  return nullptr;
+}
+
 llvm::Value *VarExprAST::codeGen() {
-  llvm::Value *varVal;
+  llvm::AllocaInst *possibleAlloc = nullptr;
+  llvm::GlobalVariable *GV = nullptr;
+
   switch (programRoot->getCurrScope()) {
     case GLOBAL: {
-      if ((varVal = programRoot->getGlobals()[name])) {
-	return loadGlobal(varVal, programRoot->getBuilder());
+      if ((GV = programRoot->getGlobals()[name])) {
+	break;
       } else {
 	return LogErrorV("Variable not found!");
       }
     }
     case FUNC: {
-      if ((varVal = programRoot->getFuncVals()[name])) {
+      if ((possibleAlloc = programRoot->getFuncVals()[name])) {
 	break;
-      } else if ((varVal = programRoot->getGlobals()[name])) {
-	return loadGlobal(varVal, programRoot->getBuilder());
+      } else if ((GV = programRoot->getGlobals()[name])) {
+	break;
       } else {
 	return LogErrorV("Variable not found!");
       }
     }
     case COND: {
-      if ((varVal = programRoot->getCondVals()[name])) {
+      if ((possibleAlloc = programRoot->getCondVals()[name])) {
 	break;
-      } else if ((varVal = programRoot->getFuncVals()[name])) {
+      } else if ((possibleAlloc = programRoot->getFuncVals()[name])) {
 	break;
-      } else if ((varVal = programRoot->getGlobals()[name])) {
-	return loadGlobal(varVal, programRoot->getBuilder());
+      } else if ((GV = programRoot->getGlobals()[name])) {
+	break;
       } else {
 	return LogErrorV("Variable not found!");
       }
@@ -82,7 +108,9 @@ llvm::Value *VarExprAST::codeGen() {
     default:
       return LogErrorV("Error retrieving variable");
   }
-  return varVal;
+  if (GV) return programRoot->getBuilder().CreateLoad(GV->getValueType(), GV);
+  return programRoot->getBuilder().CreateLoad(possibleAlloc->getAllocatedType(),
+                                              possibleAlloc, name);
 }
 llvm::Value *CallExprAST::codeGen() {
   llvm::Function *calleeF = programRoot->getModule().getFunction(callee);
@@ -94,6 +122,8 @@ llvm::Value *CallExprAST::codeGen() {
     argVals.push_back(args[i]->codeGen());
     if (!argVals.back()) return nullptr;
   }
-
-  return programRoot->getBuilder().CreateCall(calleeF, argVals, "calltmp");
+  return calleeF->getReturnType()->isVoidTy()
+             ? programRoot->getBuilder().CreateCall(calleeF, argVals)
+             : programRoot->getBuilder().CreateCall(calleeF, argVals,
+                                                    "calltmp");
 }

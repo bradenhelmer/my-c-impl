@@ -42,6 +42,6 @@ llvm::Value *Program::codeGen() {
   for (const auto &decl : declList) {
     decl->codeGen();
   }
-  runDefaultOptimization();
+  /* runDefaultOptimization(); */
   return nullptr;
 }

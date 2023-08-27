@@ -21,13 +21,16 @@ llvm::Value *VarDeclAST::codeGen() {
       break;
   }
   llvm::Type *expectedType = getIntType(programRoot->getContext(), type);
-  llvm::Value *initial = llvm::UndefValue::get(expectedType);
+
+  llvm::AllocaInst *initial =
+      programRoot->getBuilder().CreateAlloca(expectedType);
+
   if (expr) {
     llvm::Value *exprVal = expr->codeGen();
     if (exprVal->getType() != expectedType)
       return LogErrorV(
           "Expression does not evaluate to type declared for variable!");
-    initial = exprVal;
+    programRoot->getBuilder().CreateStore(exprVal, initial);
   }
   switch (curr) {
     case GLOBAL: {
@@ -66,6 +69,13 @@ llvm::Function *PrototypeAST::codeGen() {
   return F;
 }
 
+llvm::AllocaInst *FuncDeclAST::createEntryBlockAlloca(
+    llvm::Function *func, llvm::Type *argType, const std::string &varName) {
+  llvm::IRBuilder<> tempBuilder(&func->getEntryBlock(),
+                                func->getEntryBlock().begin());
+  return tempBuilder.CreateAlloca(argType, nullptr, varName);
+}
+
 llvm::Function *FuncDeclAST::codeGen() {
   // Tell the root node we are in function scope
   programRoot->setFuncScope();
@@ -84,10 +94,17 @@ llvm::Function *FuncDeclAST::codeGen() {
   // Make arguments available to function scope
   localVars.clear();
   for (auto &arg : func->args()) {
-    localVars[std::string(arg.getName())] = &arg;
+    llvm::AllocaInst *argAlloc =
+        createEntryBlockAlloca(func, arg.getType(), std::string(arg.getName()));
+    programRoot->getBuilder().CreateStore(&arg, argAlloc);
+    localVars[std::string(arg.getName())] = argAlloc;
   }
 
   body->codeGen();
+  // Handle terminator if the function type is void
+  if (func->getReturnType()->isVoidTy())
+    programRoot->getBuilder().CreateRetVoid();
+
   if (!llvm::verifyFunction(*func, &llvm::errs())) {
     // Run basic function optimizations
     programRoot->getFuncPassManager().run(

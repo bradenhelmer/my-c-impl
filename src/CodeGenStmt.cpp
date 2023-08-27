@@ -1,7 +1,7 @@
 // Statement Codegen
 #include "StmtAst.h"
 
-llvm::Value *ExprStmtAST::codeGen() {}
+llvm::Value *ExprStmtAST::codeGen() { return expr->codeGen(); }
 
 llvm::Value *BlockStmtAST::codeGen() {
   for (const auto &stmt : stmtList) {
@@ -11,5 +11,6 @@ llvm::Value *BlockStmtAST::codeGen() {
 }
 
 llvm::Value *ReturnStmtAST::codeGen() {
-  return programRoot->getBuilder().CreateRet(returnExpr->codeGen());
+  return programRoot->getBuilder().CreateRet(returnExpr ? returnExpr->codeGen()
+                                                        : nullptr);
 };

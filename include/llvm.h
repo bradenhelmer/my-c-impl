@@ -19,8 +19,6 @@ static llvm::Type *getVoidType(llvm::LLVMContext &context) {
 
 llvm::IntegerType *getIntType(llvm::LLVMContext &context, TokenKind kind);
 
-llvm::LoadInst *loadGlobal(llvm::Value *val, llvm::IRBuilder<> &builder);
-
 bool checkExpectedType(llvm::Type *expected, llvm::Type *evaluated,
                        TokenKind primitive);
 

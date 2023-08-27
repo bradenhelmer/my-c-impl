@@ -65,6 +65,8 @@ std::unique_ptr<ExprAST> Parser::parsePrimaryExpr() {
       return parseCharExpr();
     case quote:
       return parseStrLiteralExpr();
+    case semi_colon:
+      return nullptr;
     default:
       return LogError<ExprAST>("Unknown token when parsing expression!");
   }

@@ -73,10 +73,10 @@ class Program : public AstNode, public std::enable_shared_from_this<Program> {
   std::map<std::string, llvm::GlobalVariable *> globals;
 
   // Pointer to current function scoped values being generated.
-  std::map<std::string, llvm::Value *> *currFuncVals = nullptr;
+  std::map<std::string, llvm::AllocaInst *> *currFuncVals = nullptr;
 
   // Pointer to current condition scoped values being generated.
-  std::map<std::string, llvm::Value *> *currCondVals = nullptr;
+  std::map<std::string, llvm::AllocaInst *> *currCondVals = nullptr;
 
   // Initializes all analysis managers.
   void initAnalysisManagers();
@@ -129,14 +129,18 @@ class Program : public AstNode, public std::enable_shared_from_this<Program> {
     return globals;
   }
 
-  std::map<std::string, llvm::Value *> &getFuncVals() { return *currFuncVals; }
+  std::map<std::string, llvm::AllocaInst *> &getFuncVals() {
+    return *currFuncVals;
+  }
 
-  std::map<std::string, llvm::Value *> &getCondVals() { return *currCondVals; }
+  std::map<std::string, llvm::AllocaInst *> &getCondVals() {
+    return *currCondVals;
+  }
 
-  void setCurrFuncMapValPtr(std::map<std::string, llvm::Value *> *ptr) {
+  void setCurrFuncMapValPtr(std::map<std::string, llvm::AllocaInst *> *ptr) {
     currFuncVals = ptr;
   }
-  void setCurrCondMapValPtr(std::map<std::string, llvm::Value *> *ptr) {
+  void setCurrCondMapValPtr(std::map<std::string, llvm::AllocaInst *> *ptr) {
     currCondVals = ptr;
   }
 };

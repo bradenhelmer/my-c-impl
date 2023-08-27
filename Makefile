@@ -25,8 +25,11 @@ PRINT_ARGS = $(BIN)/lang --print $(BIN)/"TestFile.lang"
 
 all: clean dirs lang
 
-dbg: clean dirs lang
+dbgr:
 	gdb -q --args $(RUN_ARGS)
+
+dbgp:
+	gdb -q --args $(PRINT_ARGS)
 
 dirs:
 	mkdir -p ./$(BIN) ./$(OBJS_DIR)

@@ -80,6 +80,19 @@ inline static bool isPrimitive(TokenKind kind) {
   }
 }
 
+inline static bool isAssignmentOperator(TokenKind kind) {
+  switch (kind) {
+    case equal:
+    case plus_equal:
+    case minus_equal:
+    case star_equal:
+    case slash_equal:
+      return true;
+    default:
+      return false;
+  }
+}
+
 inline static const std::string getPrimitiveName(TokenKind kind) {
   if (!isPrimitive(kind)) {
     return NULL;
