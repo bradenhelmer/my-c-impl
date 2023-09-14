@@ -11,6 +11,12 @@
 #define TOKEN_KEYWORD(X) TOKEN(kw_##X)
 #endif
 
+// Tokens that do not map to text but are used by the compiler for other
+// purposes.
+#ifndef TOKEN_UNUSED
+#define TOKEN_UNUSED(X) TOKEN(X)
+#endif /* ifndef SYMBOL */
+
 // Base Tokens
 TOKEN(eof)
 TOKEN(unknown)
@@ -56,6 +62,7 @@ TOKEN_PUNCTUATOR(equal_equal, "==")
 TOKEN_PUNCTUATOR(bang_equal, "!=")
 
 // Keywords
+TOKEN_KEYWORD(const)
 TOKEN_KEYWORD(int)
 TOKEN_KEYWORD(char)
 TOKEN_KEYWORD(bool)
@@ -68,6 +75,10 @@ TOKEN_KEYWORD(while)
 TOKEN_KEYWORD(for)
 TOKEN_KEYWORD(return)
 
+// Declare variables as mutable
+TOKEN_UNUSED(mut)
+
 #undef TOKEN
 #undef TOKEN_PUNCTUATOR
 #undef TOKEN_KEYWORD
+#undef TOKEN_UNUSED

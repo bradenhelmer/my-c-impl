@@ -71,8 +71,8 @@ class Parser {
   // varDecl -> primType varDeclInit
   // varDeclInit -> varDeclId | varDeclId = simpleExpr
   // varDeclId -> IDENTIFIER | IDENTIFIER[NUMCONST]
-  std::unique_ptr<VarDeclAST> parseVarDecl(TokenKind kind,
-                                           const Identifier &id);
+  std::unique_ptr<VarDeclAST> parseVarDecl(TokenKind kind, const Identifier &id,
+                                           TokenKind modifier);
 
   // Parse a block statement
   // blockStmt -> { localDecls stmtList }

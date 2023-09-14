@@ -4,8 +4,10 @@
 #include "Lexer.h"
 
 #include <iostream>
+#include <sstream>
 
 #include "Common.h"
+#include "Diagnostics.h"
 
 Lexer::Lexer(std::vector<char> *buffer) : buffer(buffer) {
   currentToken = {
@@ -227,6 +229,10 @@ void Lexer::advanceToken() {
     return lexNumericLiteral();
   } else if (currentToken.kind == identifier) {
     return lexIdentifier();
+  } else if (currentToken.kind == unknown) {
+    std::stringstream stream;
+    stream << "Unknown token: " << *bufPtr;
+    Diagnostic::runDiagnostic(Diagnostic::token_error, stream.str());
   } else {
     currentToken.end = bufPtr;
     bufPtr++;

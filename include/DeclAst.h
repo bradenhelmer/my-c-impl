@@ -5,6 +5,7 @@
 #include "StmtAst.h"
 
 class VarDeclAST : public DeclAST, public StmtAST {
+  TokenKind modifier;
   TokenKind type;
   Identifier id;
   std::unique_ptr<ExprAST> expr;
@@ -12,11 +13,12 @@ class VarDeclAST : public DeclAST, public StmtAST {
 
  public:
   VarDeclAST(std::shared_ptr<Program> programRoot, TokenKind type,
-             Identifier id, std::unique_ptr<ExprAST> expr)
+             Identifier id, std::unique_ptr<ExprAST> expr, TokenKind modifier)
       : programRoot(programRoot),
         id(std::move(id)),
         type(type),
-        expr(std::move(expr)) {}
+        expr(std::move(expr)),
+        modifier(modifier) {}
   void print(int indentation) const override;
   std::unique_ptr<ExprAST> &getExprRef() override { return expr; }
   std::string getTypeString() const override { return "VarDecl"; }

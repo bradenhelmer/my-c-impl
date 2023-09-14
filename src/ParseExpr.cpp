@@ -1,5 +1,6 @@
 // Expression Parsing Imlpementations
 #include "Ast.h"
+#include "Diagnostics.h"
 #include "Parser.h"
 
 std::unique_ptr<NumConstAST> Parser::parseNumberExpr() {
@@ -11,7 +12,8 @@ std::unique_ptr<NumConstAST> Parser::parseNumberExpr() {
 std::unique_ptr<CharConstAST> Parser::parseCharExpr() {
   char char_const = lex.lexCharConstant();
   if (currKind() != apost)
-    return LogError<CharConstAST>("Missing closing apostrophe!");
+    Diagnostic::runDiagnostic(Diagnostic::syntax_error,
+                              "Missing closing apostrophe!");
   advanceCurrent();
   return std::make_unique<CharConstAST>(getCurrProgramPtr(), char_const);
 }
@@ -19,7 +21,8 @@ std::unique_ptr<CharConstAST> Parser::parseCharExpr() {
 std::unique_ptr<StringLiteralAST> Parser::parseStrLiteralExpr() {
   std::string str_literal = lex.lexStringLiteral();
   if (currKind() != quote)
-    return LogError<StringLiteralAST>("Missing closing quote!");
+    Diagnostic::runDiagnostic(Diagnostic::syntax_error,
+                              "Missing closing quotation!");
   advanceCurrent();
   return std::make_unique<StringLiteralAST>(getCurrProgramPtr(), str_literal);
 }
@@ -48,7 +51,8 @@ std::unique_ptr<ExprAST> Parser::parseParentheseExpr() {
   std::unique_ptr<ExprAST> V = parseExpr();
   if (!V) return nullptr;
   if (currKind() != c_paren)
-    return LogError<ExprAST>("Expected closing parenthese!");
+    Diagnostic::runDiagnostic(Diagnostic::syntax_error,
+                              "Missing closing parenthese!");
   advanceCurrent();
   return V;
 }
@@ -68,7 +72,8 @@ std::unique_ptr<ExprAST> Parser::parsePrimaryExpr() {
     case semi_colon:
       return nullptr;
     default:
-      return LogError<ExprAST>("Unknown token when parsing expression!");
+    Diagnostic::runDiagnostic(Diagnostic::token_error,
+                              "Unknown token when parsing expression!");
   }
 }
 

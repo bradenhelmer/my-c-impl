@@ -1,4 +1,5 @@
 // Statement Parsing Imlpementations
+#include "Diagnostics.h"
 #include "Parser.h"
 
 std::unique_ptr<BlockStmtAST> Parser::parseBlockStmt() {
@@ -6,10 +7,16 @@ std::unique_ptr<BlockStmtAST> Parser::parseBlockStmt() {
   std::vector<std::unique_ptr<StmtAST>> stmtList;
   static int count = 1;
   while (currKind() != c_brace) {
+    TokenKind possibleModifier = mut;
+    if (isModifier(currKind())) {
+      possibleModifier = currKind();
+      advanceCurrent();
+    }
     if (isPrimitive(currKind())) {
       TokenKind currDeclKind = currTok->kind;
       advanceCurrent();
-      stmtList.push_back(parseVarDecl(currDeclKind, lex.getIdentifier()));
+      stmtList.push_back(
+          parseVarDecl(currDeclKind, lex.getIdentifier(), possibleModifier));
     } else {
       switch (currKind()) {
 	case identifier:
@@ -29,7 +36,8 @@ std::unique_ptr<BlockStmtAST> Parser::parseBlockStmt() {
       }
     }
     if (currKind() != semi_colon)
-      return LogError<BlockStmtAST>("Missing semi colon when parsing!");
+      Diagnostic::runDiagnostic(Diagnostic::syntax_error,
+                                "Missing semi-colon when parsing statement!");
     advanceCurrent();
   }
   advanceCurrent();

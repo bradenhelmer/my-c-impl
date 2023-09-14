@@ -1,4 +1,5 @@
 // Declaration Parsing Implementation
+#include "Diagnostics.h"
 #include "Parser.h"
 
 std::vector<std::unique_ptr<DeclAST>> Parser::parseDeclList() {
@@ -11,13 +12,25 @@ std::vector<std::unique_ptr<DeclAST>> Parser::parseDeclList() {
 }
 
 std::unique_ptr<DeclAST> Parser::parseDecl() {
-  if (!isPrimitive(currKind())) {
-    return LogError<DeclAST>("Expected type specifer!");
+  TokenKind possibleModifier = mut;
+
+  // Check to see if there is a decl modifere e.g 'const'
+  if (isModifier(currKind())) {
+    possibleModifier = currKind();
+    advanceCurrent();
   }
+
+  if (!isPrimitive(currKind())) {
+    Diagnostic::runDiagnostic(
+        Diagnostic::syntax_error,
+        "Expected type specifier when parsing declaration!");
+  }
+
   TokenKind kind = currKind();
   advanceCurrent();
   if (!isIdentifier(currKind()))
-    return LogError<DeclAST>("Expected identifier!");
+    Diagnostic::runDiagnostic(Diagnostic::syntax_error,
+                              "Expected identifier when parsing declaration!");
 
   const Identifier id = lex.getIdentifier();
 
@@ -26,7 +39,7 @@ std::unique_ptr<DeclAST> Parser::parseDecl() {
   if (currKind() == o_paren) {
     return parseFuncDecl(kind, id);
   } else {
-    return parseVarDecl(kind, id);
+    return parseVarDecl(kind, id, possibleModifier);
   }
 }
 
@@ -41,16 +54,18 @@ std::unique_ptr<PrototypeAST> Parser::parseProtoType(TokenKind kind,
     if (currKind() == comma) advanceCurrent();
 
     if (!isPrimitive(currKind())) {
-      return LogError<PrototypeAST>(
-          "Expected type specifer when parsing function arguments!");
+      Diagnostic::runDiagnostic(
+          Diagnostic::syntax_error,
+          "Expected type specifier when parsing function arguments!");
     }
 
     currParamKind = currKind();
     advanceCurrent();
     if (!isIdentifier(currKind()))
-
-      return LogError<PrototypeAST>(
+      Diagnostic::runDiagnostic(
+          Diagnostic::syntax_error,
           "Expected identifier when parsing function arguments!");
+
     currParamId = lex.getIdentifier();
     params.push_back(
         {.id = currParamId, .type = currParamKind, .position = pos});
@@ -70,19 +85,27 @@ std::unique_ptr<FuncDeclAST> Parser::parseFuncDecl(TokenKind kind,
     return std::make_unique<FuncDeclAST>(getCurrProgramPtr(), std::move(proto),
                                          parseBlockStmt());
   } else {
-    return LogError<FuncDeclAST>("Error parsing function declaration!");
+    Diagnostic::runDiagnostic(Diagnostic::parse_error,
+                              "Error parsing function declaration!");
   }
 }
 std::unique_ptr<VarDeclAST> Parser::parseVarDecl(TokenKind kind,
-                                                 const Identifier &id) {
+                                                 const Identifier &id,
+                                                 TokenKind modifier) {
   if (currKind() == semi_colon) {
     advanceCurrent();
-    return std::make_unique<VarDeclAST>(getCurrProgramPtr(), kind, id, nullptr);
+    if (modifier == kw_const)
+      Diagnostic::runDiagnostic(Diagnostic::invalid_modifier_error,
+                                "Variables declared as const must be "
+                                "initialized with a valid expression!");
+    return std::make_unique<VarDeclAST>(getCurrProgramPtr(), kind, id, nullptr,
+                                        modifier);
   } else if (currKind() == equal) {
     advanceCurrent();
     return std::make_unique<VarDeclAST>(getCurrProgramPtr(), kind, id,
-                                        parseExpr());
+                                        parseExpr(), modifier);
   } else {
-    return LogError<VarDeclAST>("Failed to parse variable declaration!");
+    Diagnostic::runDiagnostic(Diagnostic::parse_error,
+                              "Error parsing variable declaration!");
   }
 }

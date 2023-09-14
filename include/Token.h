@@ -80,6 +80,15 @@ inline static bool isPrimitive(TokenKind kind) {
   }
 }
 
+inline static bool isModifier(TokenKind kind) {
+  switch (kind) {
+    case kw_const:
+      return true;
+    default:
+      return false;
+  }
+}
+
 inline static bool isAssignmentOperator(TokenKind kind) {
   switch (kind) {
     case equal:
