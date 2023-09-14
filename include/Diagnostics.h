@@ -23,7 +23,7 @@ class Diagnostic {
   }
 
  private:
-  static inline std::unordered_map<DiagCode, const std::string>
+  static inline const std::unordered_map<DiagCode, const std::string>
       diagCodeStrings = {{token_error, "TOKEN ERROR"},
                          {syntax_error, "SYNTAX ERROR"},
                          {type_error, "TYPE ERROR"},
