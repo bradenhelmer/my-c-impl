@@ -13,12 +13,6 @@
 #define CHAR_BIT_LENGTH 8
 #define INT_BIT_LENGTH 32
 
-static llvm::Type *getVoidType(llvm::LLVMContext &context) {
-  return llvm::Type::getVoidTy(context);
-}
-
-llvm::IntegerType *getIntType(llvm::LLVMContext &context, TokenKind kind);
-
 bool checkExpectedType(llvm::Type *expected, llvm::Type *evaluated,
                        TokenKind primitive);
 

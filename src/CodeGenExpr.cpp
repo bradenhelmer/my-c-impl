@@ -1,4 +1,5 @@
 // Expression code generation
+#include "Diagnostics.h"
 #include "ExprAst.h"
 #include "llvm.h"
 
@@ -13,7 +14,10 @@ llvm::Value *CharConstAST::codeGen() {
                                 llvm::APInt(CHAR_BIT_LENGTH, charConst));
 }
 
-llvm::Value *StringLiteralAST::codeGen() {}
+llvm::Value *StringLiteralAST::codeGen() {
+  return llvm::UndefValue::get(llvm::ArrayType::get(
+      llvm::Type::getInt8Ty(programRoot->getContext()), 0));
+}
 
 llvm::Value *BinaryExprAST::codeGen() {
   llvm::Value *leftVal = LHS->codeGen();
@@ -21,11 +25,12 @@ llvm::Value *BinaryExprAST::codeGen() {
 
   if (!leftVal || !rightVal) return LogErrorV("Could not evaluate expression!");
 
-  /* if (isAssignmentOperator(op)) return codeGenAssignment(leftVal, rightVal,
-   * op); */
-
   switch (op) {
     case equal:
+      if (llvm::Constant *check = llvm::dyn_cast<llvm::Constant>(leftVal)) {
+	Diagnostic::runDiagnostic(Diagnostic::initialization_error,
+	                          "Cannot re-assign variable declared const!");
+      }
       return programRoot->getBuilder().CreateStore(rightVal, leftVal);
     case plus:
       return programRoot->getBuilder().CreateAdd(leftVal, rightVal, "addtmp");
@@ -74,32 +79,32 @@ llvm::Value *BinaryExprAST::codeGenAssignment(llvm::Value *RHS,
 }
 
 llvm::Value *VarExprAST::codeGen() {
-  llvm::AllocaInst *possibleAlloc = nullptr;
+  llvm::Value *val;
   llvm::GlobalVariable *GV = nullptr;
 
   switch (programRoot->getCurrScope()) {
     case GLOBAL: {
-      if ((GV = programRoot->getGlobals()[name])) {
+      if ((GV = programRoot->getModule().getGlobalVariable(name))) {
 	break;
       } else {
 	return LogErrorV("Variable not found!");
       }
     }
     case FUNC: {
-      if ((possibleAlloc = programRoot->getFuncVals()[name])) {
+      if ((val = programRoot->getFuncVals()[name])) {
 	break;
-      } else if ((GV = programRoot->getGlobals()[name])) {
+      } else if ((GV = programRoot->getModule().getGlobalVariable(name))) {
 	break;
       } else {
 	return LogErrorV("Variable not found!");
       }
     }
     case COND: {
-      if ((possibleAlloc = programRoot->getCondVals()[name])) {
+      if ((val = programRoot->getCondVals()[name])) {
 	break;
-      } else if ((possibleAlloc = programRoot->getFuncVals()[name])) {
+      } else if ((val = programRoot->getFuncVals()[name])) {
 	break;
-      } else if ((GV = programRoot->getGlobals()[name])) {
+      } else if ((GV = programRoot->getModule().getGlobalVariable(name))) {
 	break;
       } else {
 	return LogErrorV("Variable not found!");
@@ -109,9 +114,13 @@ llvm::Value *VarExprAST::codeGen() {
       return LogErrorV("Error retrieving variable");
   }
   if (GV) return programRoot->getBuilder().CreateLoad(GV->getValueType(), GV);
-  return programRoot->getBuilder().CreateLoad(possibleAlloc->getAllocatedType(),
-                                              possibleAlloc, name);
+
+  if (llvm::isa<llvm::Constant>(val))
+    return programRoot->getBuilder().CreateLoad(val->getType(), val);
+  return programRoot->getBuilder().CreateLoad(
+      llvm::cast<llvm::AllocaInst>(val)->getAllocatedType(), val);
 }
+
 llvm::Value *CallExprAST::codeGen() {
   llvm::Function *calleeF = programRoot->getModule().getFunction(callee);
   if (!calleeF) return LogErrorV("Unknown function referenced");

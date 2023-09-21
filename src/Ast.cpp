@@ -10,6 +10,7 @@ Program::Program() {
   builder = std::make_unique<llvm::IRBuilder<>>(getContext());
   initAnalysisManagers();
   initPassManagers();
+  initTokenTypeMap();
 }
 
 void Program::initAnalysisManagers() {
@@ -36,6 +37,13 @@ void Program::initPassManagers() {
   FPM = std::make_unique<llvm::FunctionPassManager>(
       PB.buildFunctionSimplificationPipeline(llvm::OptimizationLevel::O2,
                                              llvm::ThinOrFullLTOPhase::None));
+}
+
+void Program::initTokenTypeMap() {
+  tokenLLVMTypeMap.emplace(kw_int, llvm::Type::getInt32Ty(getContext()));
+  tokenLLVMTypeMap.emplace(kw_bool, llvm::Type::getInt1Ty(getContext()));
+  tokenLLVMTypeMap.emplace(kw_char, llvm::Type::getInt8Ty(getContext()));
+  tokenLLVMTypeMap.emplace(kw_void, llvm::Type::getVoidTy(getContext()));
 }
 
 llvm::Value *Program::codeGen() {

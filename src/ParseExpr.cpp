@@ -72,9 +72,10 @@ std::unique_ptr<ExprAST> Parser::parsePrimaryExpr() {
     case semi_colon:
       return nullptr;
     default:
-    Diagnostic::runDiagnostic(Diagnostic::token_error,
-                              "Unknown token when parsing expression!");
+      Diagnostic::runDiagnostic(Diagnostic::token_error,
+                                "Unknown token when parsing expression!");
   }
+  return nullptr;
 }
 
 std::unique_ptr<ExprAST> Parser::parseExpr() {

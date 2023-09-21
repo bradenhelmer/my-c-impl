@@ -1,7 +1,6 @@
 // Declaration Parsing Implementation
 #include "Diagnostics.h"
 #include "Parser.h"
-
 std::vector<std::unique_ptr<DeclAST>> Parser::parseDeclList() {
   std::vector<std::unique_ptr<DeclAST>> declList;
   while (currKind() != eof) {
@@ -88,6 +87,7 @@ std::unique_ptr<FuncDeclAST> Parser::parseFuncDecl(TokenKind kind,
     Diagnostic::runDiagnostic(Diagnostic::parse_error,
                               "Error parsing function declaration!");
   }
+  return nullptr;
 }
 std::unique_ptr<VarDeclAST> Parser::parseVarDecl(TokenKind kind,
                                                  const Identifier &id,
@@ -98,14 +98,17 @@ std::unique_ptr<VarDeclAST> Parser::parseVarDecl(TokenKind kind,
       Diagnostic::runDiagnostic(Diagnostic::invalid_modifier_error,
                                 "Variables declared as const must be "
                                 "initialized with a valid expression!");
-    return std::make_unique<VarDeclAST>(getCurrProgramPtr(), kind, id, nullptr,
-                                        modifier);
+    return std::make_unique<VarDeclAST>(getCurrProgramPtr(), kind, id, nullptr);
   } else if (currKind() == equal) {
     advanceCurrent();
+    if (modifier == kw_const)
+      return std::make_unique<ConstVarDeclAST>(getCurrProgramPtr(), kind, id,
+                                               parseExpr());
     return std::make_unique<VarDeclAST>(getCurrProgramPtr(), kind, id,
-                                        parseExpr(), modifier);
+                                        parseExpr());
   } else {
     Diagnostic::runDiagnostic(Diagnostic::parse_error,
                               "Error parsing variable declaration!");
+    return nullptr;
   }
 }

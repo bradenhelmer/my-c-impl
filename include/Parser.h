@@ -26,13 +26,6 @@ class Parser {
   // program -> declList
   std::shared_ptr<Program> parseProgram();
 
-  // Node to log errors.
-  template <typename T>
-  static std::unique_ptr<T> LogError(const char *str) {
-    fprintf(stderr, "Error: %s\n", str);
-    return nullptr;
-  }
-
   std::shared_ptr<Program> getCurrProgramPtr() const {
     return currentProgram->shared_from_this();
   }

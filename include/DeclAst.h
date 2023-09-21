@@ -2,25 +2,25 @@
 #ifndef DECL_AST_H
 #define DECL_AST_H
 #include "Ast.h"
+#include "Diagnostics.h"
 #include "StmtAst.h"
 
 class VarDeclAST : public DeclAST, public StmtAST {
-  TokenKind modifier;
-  TokenKind type;
-  Identifier id;
-  std::unique_ptr<ExprAST> expr;
-  std::shared_ptr<Program> programRoot;
-
  public:
   VarDeclAST(std::shared_ptr<Program> programRoot, TokenKind type,
-             Identifier id, std::unique_ptr<ExprAST> expr, TokenKind modifier)
+             Identifier id, std::unique_ptr<ExprAST> expr)
       : programRoot(programRoot),
         id(std::move(id)),
+        llvmType(programRoot->getLLVMTypeFromToken(type)),
         type(type),
-        expr(std::move(expr)),
-        modifier(modifier) {}
+        expr(std::move(expr)) {
+    if (type == kw_void)
+      Diagnostic::runDiagnostic(Diagnostic::initialization_error,
+                                "Cannot initialize variable of type void!");
+  }
+
   void print(int indentation) const override;
-  std::unique_ptr<ExprAST> &getExprRef() override { return expr; }
+  std::unique_ptr<ExprAST> &getExprRef() { return expr; }
   std::string getTypeString() const override { return "VarDecl"; }
   std::string getArrayId() const {
     std::string arrayId = id.idStr;
@@ -33,10 +33,30 @@ class VarDeclAST : public DeclAST, public StmtAST {
     return varDeclStr;
   }
   llvm::Value *codeGen() override;
+  llvm::GlobalVariable *createGlobalVariable(const bool isConstant = false);
+  llvm::AllocaInst *allocVarDecl();
+
+ protected:
+  // Checks to see if the value being generated has already been declared.
+  void checkReDeclaration();
+  TokenKind type;
+  llvm::Type *llvmType;
+  Identifier id;
+  std::unique_ptr<ExprAST> expr;
+  std::shared_ptr<Program> programRoot;
+};
+
+class ConstVarDeclAST : public VarDeclAST {
+ public:
+  using VarDeclAST::VarDeclAST;
+
+  std::string getTypeString() const override { return "ConstVarDecl"; }
+  llvm::Value *codeGen() override;
 };
 
 class PrototypeAST : public DeclAST {
   TokenKind type;
+  llvm::Type *llvmType;
   Identifier id;
   std::vector<FuncParam> args;
   std::shared_ptr<Program> programRoot;
@@ -46,6 +66,7 @@ class PrototypeAST : public DeclAST {
                Identifier id, std::vector<FuncParam> args)
       : programRoot(programRoot),
         type(type),
+        llvmType(programRoot->getLLVMTypeFromToken(type)),
         id(std::move(id)),
         args(std::move(args)) {}
   std::string constructProtoString() const {
@@ -61,7 +82,7 @@ class PrototypeAST : public DeclAST {
 class FuncDeclAST : public DeclAST {
   std::unique_ptr<PrototypeAST> proto;
   std::unique_ptr<BlockStmtAST> body;
-  std::map<std::string, llvm::AllocaInst *> localVars;
+  std::map<std::string, llvm::Value *> localVars;
   std::shared_ptr<Program> programRoot;
   llvm::AllocaInst *createEntryBlockAlloca(llvm::Function *func,
                                            llvm::Type *argType,

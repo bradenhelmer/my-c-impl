@@ -1,66 +1,109 @@
 // Declaration code generation
 #include <llvm/IR/Verifier.h>
 
+#include <sstream>
+
 #include "DeclAst.h"
+#include "Diagnostics.h"
 #include "llvm.h"
 
-llvm::Value *VarDeclAST::codeGen() {
+void VarDeclAST::checkReDeclaration() {
   Scope curr = programRoot->getCurrScope();
+  std::stringstream stream;
   switch (curr) {
     case GLOBAL:
-      if (programRoot->getGlobals()[id.idStr])
-	return LogErrorV("Cannot redeclare global variable!");
+      if (programRoot->getModule().getGlobalVariable(id.idStr)) {
+	stream << "Cannot redeclare global variable: " << id.idStr << " !";
+	Diagnostic::runDiagnostic(Diagnostic::initialization_error,
+	                          stream.str());
+      }
       break;
     case FUNC:
-      if (programRoot->getFuncVals()[id.idStr])
-	return LogErrorV("Cannot redeclare function scoped variable!");
+      if (programRoot->getFuncVals()[id.idStr]) {
+	stream << "Cannot redeclare function scoped variable: " << id.idStr
+	       << " !";
+	Diagnostic::runDiagnostic(Diagnostic::initialization_error,
+	                          stream.str());
+      }
       break;
     case COND:
-      if (programRoot->getCondVals()[id.idStr])
-	return LogErrorV("Cannot redeclare condition variable!");
+      if (programRoot->getCondVals()[id.idStr]) {
+	stream << "Cannot redeclare conditionally scoped variable: " << id.idStr
+	       << " !";
+	Diagnostic::runDiagnostic(Diagnostic::initialization_error,
+	                          stream.str());
+      }
       break;
   }
-  llvm::Type *expectedType = getIntType(programRoot->getContext(), type);
+}
 
-  llvm::AllocaInst *initial =
-      programRoot->getBuilder().CreateAlloca(expectedType);
+llvm::Value *VarDeclAST::codeGen() {
+  std::stringstream stream;
+  checkReDeclaration();
+  if (programRoot->getCurrScope() == GLOBAL) return createGlobalVariable();
+  return allocVarDecl();
+}
 
+llvm::AllocaInst *VarDeclAST::allocVarDecl() {
+  llvm::AllocaInst *allocation =
+      programRoot->getBuilder().CreateAlloca(llvmType);
   if (expr) {
     llvm::Value *exprVal = expr->codeGen();
-    if (exprVal->getType() != expectedType)
-      return LogErrorV(
-          "Expression does not evaluate to type declared for variable!");
-    programRoot->getBuilder().CreateStore(exprVal, initial);
+    if (exprVal->getType() != llvmType)
+      Diagnostic::runDiagnostic(
+          Diagnostic::initialization_error,
+          "Varaible type does match that of expression in declaration!");
+    programRoot->getBuilder().CreateStore(exprVal, allocation);
   }
-  switch (curr) {
-    case GLOBAL: {
-      llvm::GlobalVariable *global = new llvm::GlobalVariable(
-          programRoot->getModule(), initial->getType(), false,
-          llvm::GlobalVariable::ExternalLinkage,
-          llvm::dyn_cast<llvm::Constant>(initial), id.idStr);
-      programRoot->getGlobals()[id.idStr] = global;
-      break;
-    }
+  if (programRoot->getCurrScope() == FUNC) {
+    programRoot->getFuncVals()[id.idStr] = allocation;
+  } else {
+    programRoot->getCondVals()[id.idStr] = allocation;
+  }
+  return allocation;
+}
+
+llvm::GlobalVariable *VarDeclAST::createGlobalVariable(const bool isConstant) {
+  llvm::GlobalVariable *GV = new llvm::GlobalVariable(
+      programRoot->getModule(), llvmType, isConstant,
+      llvm::GlobalVariable::LinkageTypes::ExternalLinkage, nullptr, id.idStr);
+  if (expr) {
+    llvm::Value *V = expr->codeGen();
+    if (V->getType() != llvmType)
+      Diagnostic::runDiagnostic(
+          Diagnostic::initialization_error,
+          "Initializer expression type does not match declaration type!");
+    GV->setInitializer(llvm::dyn_cast<llvm::Constant>(V));
+  }
+  return GV;
+}
+
+llvm::Value *ConstVarDeclAST::codeGen() {
+  std::stringstream stream;
+  checkReDeclaration();
+
+  switch (programRoot->getCurrScope()) {
+    llvm::AllocaInst *allocation;
+    case GLOBAL:
+      return createGlobalVariable(true);
     case FUNC:
-      programRoot->getFuncVals()[id.idStr] = initial;
+      allocation = programRoot->getBuilder().CreateAlloca(llvmType);
       break;
     case COND:
-      programRoot->getCondVals()[id.idStr] = initial;
+      allocation = programRoot->getBuilder().CreateAlloca(llvmType);
       break;
   }
-  return initial;
+  llvm::Value *CV = expr->codeGen();
+  return CV;
 }
 
 llvm::Function *PrototypeAST::codeGen() {
   std::vector<llvm::Type *> argTypes;
   for (const auto &arg : args) {
-    argTypes.push_back(getIntType(programRoot->getContext(), arg.type));
+    argTypes.push_back(programRoot->getLLVMTypeFromToken(arg.type));
   }
 
-  llvm::FunctionType *FT = llvm::FunctionType::get(
-      type == kw_void ? getVoidType(programRoot->getContext())
-                      : getIntType(programRoot->getContext(), type),
-      argTypes, false);
+  llvm::FunctionType *FT = llvm::FunctionType::get(llvmType, argTypes, false);
 
   llvm::Function *F = llvm::Function::Create(
       FT, llvm::Function::ExternalLinkage, id.idStr, programRoot->getModule());
@@ -107,8 +150,8 @@ llvm::Function *FuncDeclAST::codeGen() {
 
   if (!llvm::verifyFunction(*func, &llvm::errs())) {
     // Run basic function optimizations
-    programRoot->getFuncPassManager().run(
-        *func, programRoot->getFunctionAnalysisManager());
+    /* programRoot->getFuncPassManager().run( */
+    /*     *func, programRoot->getFunctionAnalysisManager()); */
 
     // Unset global scope notifier, func val ptr,  and clear insertion point
     programRoot->setGlobalScope();

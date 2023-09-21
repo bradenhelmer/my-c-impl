@@ -33,11 +33,16 @@ std::unique_ptr<BlockStmtAST> Parser::parseBlockStmt() {
 	case kw_return:
 	  advanceCurrent();
 	  stmtList.push_back(parseReturnStmt());
+	  break;
+	default:
+	  Diagnostic::runDiagnostic(Diagnostic::syntax_error,
+	                            "Error parsing statement!");
       }
     }
     if (currKind() != semi_colon)
       Diagnostic::runDiagnostic(Diagnostic::syntax_error,
-                                "Missing semi-colon when parsing statement!");
+                                "Missing semi-colon when parsing "
+                                "statement!");
     advanceCurrent();
   }
   advanceCurrent();
@@ -45,9 +50,9 @@ std::unique_ptr<BlockStmtAST> Parser::parseBlockStmt() {
                                         std::move(stmtList));
 }
 
-std::unique_ptr<BlockStmtAST> Parser::parseCondStatement() {}
+std::unique_ptr<BlockStmtAST> Parser::parseCondStatement() { return nullptr; }
 
-std::unique_ptr<BlockStmtAST> Parser::parseIterStmt() {}
+std::unique_ptr<BlockStmtAST> Parser::parseIterStmt() { return nullptr; }
 
 std::unique_ptr<ReturnStmtAST> Parser::parseReturnStmt() {
   return std::make_unique<ReturnStmtAST>(getCurrProgramPtr(), parseExpr());

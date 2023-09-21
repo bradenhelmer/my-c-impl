@@ -31,18 +31,17 @@ class AstNode {
 
 class DeclAST : public AstNode {
  public:
-  llvm::Value *codeGen() override {}
+  llvm::Value *codeGen() override { return nullptr; }
 };
 
 class ExprAST : public AstNode {
  public:
-  llvm::Value *codeGen() override {}
+  llvm::Value *codeGen() override { return nullptr; }
 };
 
 class StmtAST : public AstNode {
  public:
-  virtual std::unique_ptr<ExprAST> &getExprRef() = 0;
-  llvm::Value *codeGen() override {}
+  llvm::Value *codeGen() override { return nullptr; }
 };
 
 enum Scope : unsigned short { GLOBAL = 0, FUNC = 1, COND = 2 };
@@ -66,22 +65,25 @@ class Program : public AstNode, public std::enable_shared_from_this<Program> {
   std::unique_ptr<llvm::CGSCCAnalysisManager> CGAM;
   std::unique_ptr<llvm::ModuleAnalysisManager> MAM;
 
+  // Token Type Map
+  std::unordered_map<TokenKind, llvm::Type *> tokenLLVMTypeMap;
+
   // Current scope
   Scope currGenScope = GLOBAL;
 
-  // Global scoped variables and coressponding vals.
-  std::map<std::string, llvm::GlobalVariable *> globals;
-
   // Pointer to current function scoped values being generated.
-  std::map<std::string, llvm::AllocaInst *> *currFuncVals = nullptr;
+  std::map<std::string, llvm::Value *> *currFuncVals = nullptr;
 
   // Pointer to current condition scoped values being generated.
-  std::map<std::string, llvm::AllocaInst *> *currCondVals = nullptr;
+  std::map<std::string, llvm::Value *> *currCondVals = nullptr;
 
   // Initializes all analysis managers.
   void initAnalysisManagers();
   // Initializes module and function pass managers.
   void initPassManagers();
+
+  // Initializes the type map
+  void initTokenTypeMap();
 
   // Runs the default optimization pipeline for the module.
   void runDefaultOptimization() const {
@@ -117,6 +119,10 @@ class Program : public AstNode, public std::enable_shared_from_this<Program> {
 
   llvm::ModuleAnalysisManager &getModuleAnalysisManager() const { return *MAM; }
 
+  llvm::Type *getLLVMTypeFromToken(TokenKind kind) const {
+    return tokenLLVMTypeMap.at(kind);
+  }
+
   Scope getCurrScope() const { return currGenScope; }
 
   void setGlobalScope() { currGenScope = GLOBAL; }
@@ -125,22 +131,14 @@ class Program : public AstNode, public std::enable_shared_from_this<Program> {
 
   void setCondScope() { currGenScope = COND; }
 
-  std::map<std::string, llvm::GlobalVariable *> &getGlobals() {
-    return globals;
-  }
+  std::map<std::string, llvm::Value *> &getFuncVals() { return *currFuncVals; }
 
-  std::map<std::string, llvm::AllocaInst *> &getFuncVals() {
-    return *currFuncVals;
-  }
+  std::map<std::string, llvm::Value *> &getCondVals() { return *currCondVals; }
 
-  std::map<std::string, llvm::AllocaInst *> &getCondVals() {
-    return *currCondVals;
-  }
-
-  void setCurrFuncMapValPtr(std::map<std::string, llvm::AllocaInst *> *ptr) {
+  void setCurrFuncMapValPtr(std::map<std::string, llvm::Value *> *ptr) {
     currFuncVals = ptr;
   }
-  void setCurrCondMapValPtr(std::map<std::string, llvm::AllocaInst *> *ptr) {
+  void setCurrCondMapValPtr(std::map<std::string, llvm::Value *> *ptr) {
     currCondVals = ptr;
   }
 };
