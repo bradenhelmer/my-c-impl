@@ -21,7 +21,7 @@ OBJ = $(patsubst $(SRC_DIR)/%.cpp, $(OBJS_DIR)/%.o, $(SRC))
 RUN_ARGS = $(BIN)/lang --exec $(BIN)/"TestFile.lang"
 PRINT_ARGS = $(BIN)/lang --print $(BIN)/"TestFile.lang"
 
-.PHONY: all clean
+.PHONY: all clean obj
 
 all: clean dirs lang
 
@@ -46,8 +46,11 @@ re:
 rep:
 	$(BIN)/lang --print $(BIN)/"TestFile.lang"
 
-lang: $(OBJ)
-	$(CXX) $^ $(CXXFLAGS) $(LDFLAGS) -o $(BIN)/lang
+obj: $(OBJ)
+
+lang: obj
+	$(CXX) $(OBJ) $(CXXFLAGS) $(LDFLAGS) -o $(BIN)/lang
+
 
 $(OBJS_DIR)/%.o: $(SRC_DIR)/%.cpp
 	$(CXX) $(CXXFLAGS) -o $@ -c $< 

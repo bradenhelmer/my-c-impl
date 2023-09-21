@@ -27,7 +27,7 @@ llvm::Value *BinaryExprAST::codeGen() {
 
   switch (op) {
     case equal:
-      if (llvm::Constant *check = llvm::dyn_cast<llvm::Constant>(leftVal)) {
+      if (llvm::isa<llvm::Constant>(leftVal)) {
 	Diagnostic::runDiagnostic(Diagnostic::initialization_error,
 	                          "Cannot re-assign variable declared const!");
       }
@@ -102,8 +102,8 @@ llvm::Value *VarExprAST::codeGen() {
     case COND: {
       if ((val = programRoot->getCondVals()[name])) {
 	break;
-      } else if ((val = programRoot->getFuncVals()[name])) {
 	break;
+      } else if ((val = programRoot->getFuncVals()[name])) {
       } else if ((GV = programRoot->getModule().getGlobalVariable(name))) {
 	break;
       } else {
@@ -115,8 +115,9 @@ llvm::Value *VarExprAST::codeGen() {
   }
   if (GV) return programRoot->getBuilder().CreateLoad(GV->getValueType(), GV);
 
-  if (llvm::isa<llvm::Constant>(val))
-    return programRoot->getBuilder().CreateLoad(val->getType(), val);
+  if (llvm::isa<llvm::Constant>(val)) {
+    return val;
+  }
   return programRoot->getBuilder().CreateLoad(
       llvm::cast<llvm::AllocaInst>(val)->getAllocatedType(), val);
 }

@@ -141,6 +141,8 @@ class Program : public AstNode, public std::enable_shared_from_this<Program> {
   void setCurrCondMapValPtr(std::map<std::string, llvm::Value *> *ptr) {
     currCondVals = ptr;
   }
+
+  void storeValueToSymbolMap(llvm::Value *val, std::string name);
 };
 
 #endif  // AST_H

@@ -38,7 +38,6 @@ void VarDeclAST::checkReDeclaration() {
 }
 
 llvm::Value *VarDeclAST::codeGen() {
-  std::stringstream stream;
   checkReDeclaration();
   if (programRoot->getCurrScope() == GLOBAL) return createGlobalVariable();
   return allocVarDecl();
@@ -55,11 +54,7 @@ llvm::AllocaInst *VarDeclAST::allocVarDecl() {
           "Varaible type does match that of expression in declaration!");
     programRoot->getBuilder().CreateStore(exprVal, allocation);
   }
-  if (programRoot->getCurrScope() == FUNC) {
-    programRoot->getFuncVals()[id.idStr] = allocation;
-  } else {
-    programRoot->getCondVals()[id.idStr] = allocation;
-  }
+  programRoot->storeValueToSymbolMap(allocation, id.idStr);
   return allocation;
 }
 
@@ -79,22 +74,19 @@ llvm::GlobalVariable *VarDeclAST::createGlobalVariable(const bool isConstant) {
 }
 
 llvm::Value *ConstVarDeclAST::codeGen() {
-  std::stringstream stream;
   checkReDeclaration();
+  if (programRoot->getCurrScope() == GLOBAL) return createGlobalVariable(true);
+  return createConstant();
+}
 
-  switch (programRoot->getCurrScope()) {
-    llvm::AllocaInst *allocation;
-    case GLOBAL:
-      return createGlobalVariable(true);
-    case FUNC:
-      allocation = programRoot->getBuilder().CreateAlloca(llvmType);
-      break;
-    case COND:
-      allocation = programRoot->getBuilder().CreateAlloca(llvmType);
-      break;
-  }
-  llvm::Value *CV = expr->codeGen();
-  return CV;
+llvm::Constant *ConstVarDeclAST::createConstant() {
+  llvm::Value *V = expr->codeGen();
+  if (V->getType() != llvmType)
+    Diagnostic::runDiagnostic(
+        Diagnostic::initialization_error,
+        "Initializer expression type does not match declaration type!");
+  programRoot->storeValueToSymbolMap(std::move(V), id.idStr);
+  return llvm::cast<llvm::Constant>(V);
 }
 
 llvm::Function *PrototypeAST::codeGen() {
@@ -149,9 +141,9 @@ llvm::Function *FuncDeclAST::codeGen() {
     programRoot->getBuilder().CreateRetVoid();
 
   if (!llvm::verifyFunction(*func, &llvm::errs())) {
-    // Run basic function optimizations
-    /* programRoot->getFuncPassManager().run( */
-    /*     *func, programRoot->getFunctionAnalysisManager()); */
+    /* // Run basic function optimizations */
+    programRoot->getFuncPassManager().run(
+        *func, programRoot->getFunctionAnalysisManager());
 
     // Unset global scope notifier, func val ptr,  and clear insertion point
     programRoot->setGlobalScope();

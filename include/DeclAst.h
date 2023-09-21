@@ -52,6 +52,7 @@ class ConstVarDeclAST : public VarDeclAST {
 
   std::string getTypeString() const override { return "ConstVarDecl"; }
   llvm::Value *codeGen() override;
+  llvm::Constant *createConstant();
 };
 
 class PrototypeAST : public DeclAST {

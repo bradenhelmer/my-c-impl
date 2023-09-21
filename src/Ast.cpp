@@ -53,3 +53,16 @@ llvm::Value *Program::codeGen() {
   /* runDefaultOptimization(); */
   return nullptr;
 }
+
+void Program::storeValueToSymbolMap(llvm::Value *val, std::string name) {
+  switch (currGenScope) {
+    case FUNC:
+      (*currFuncVals)[name] = val;
+      break;
+    case COND:
+      (*currCondVals)[name] = val;
+      break;
+    default:
+      break;
+  }
+}
