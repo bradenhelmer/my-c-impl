@@ -92,13 +92,19 @@ std::unique_ptr<ExprAST> Parser::parseBinaryOpExpr(std::unique_ptr<ExprAST> LHS,
     TokenKind op = currKind();
     advanceCurrent();
 
-    std::unique_ptr<ExprAST> RHS = parsePrimaryExpr();
+    std::unique_ptr<ExprAST> RHS;
+    if (currPrec <= assignment) {
+      RHS = parseExpr();
+    } else {
+      RHS = parsePrimaryExpr();
+    }
+
     if (!RHS) return nullptr;
     Precedence prevPrec = currPrec;
     currPrec = getOperatorPrecedence(currKind());
 
     // Exponential expressions are right associative
-    bool isRightAssoc = prevPrec == exponential;
+    bool isRightAssoc = prevPrec == exponential || prevPrec == assignment;
 
     if (currPrec < prevPrec) {
       RHS = parseBinaryOpExpr(

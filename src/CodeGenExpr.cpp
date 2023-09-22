@@ -20,18 +20,30 @@ llvm::Value *StringLiteralAST::codeGen() {
 }
 
 llvm::Value *BinaryExprAST::codeGen() {
+  if (isAssignmentOperator(op)) return codeGenAssignment();
+
   llvm::Value *leftVal = LHS->codeGen();
   llvm::Value *rightVal = RHS->codeGen();
 
-  if (!leftVal || !rightVal) return LogErrorV("Could not evaluate expression!");
+  if (!leftVal || !rightVal)
+    Diagnostic::runDiagnostic(Diagnostic::type_error,
+                              "Could not evaluate expression!");
+
+  if (llvm::AllocaInst *possibleAlloc =
+          llvm::dyn_cast<llvm::AllocaInst>(rightVal)) {
+    rightVal = programRoot->getBuilder().CreateLoad(
+        possibleAlloc->getAllocatedType(), possibleAlloc,
+        possibleAlloc->getName());
+  }
+
+  if (llvm::AllocaInst *possibleAlloc =
+          llvm::dyn_cast<llvm::AllocaInst>(leftVal)) {
+    leftVal = programRoot->getBuilder().CreateLoad(
+        possibleAlloc->getAllocatedType(), possibleAlloc,
+        possibleAlloc->getName());
+  }
 
   switch (op) {
-    case equal:
-      if (llvm::isa<llvm::Constant>(leftVal)) {
-	Diagnostic::runDiagnostic(Diagnostic::initialization_error,
-	                          "Cannot re-assign variable declared const!");
-      }
-      return programRoot->getBuilder().CreateStore(rightVal, leftVal);
     case plus:
       return programRoot->getBuilder().CreateAdd(leftVal, rightVal, "addtmp");
     case minus:
@@ -55,23 +67,39 @@ llvm::Value *BinaryExprAST::codeGen() {
       return programRoot->getBuilder().CreateICmpUGE(leftVal, rightVal,
                                                      "booltmpge");
     default:
-      return LogErrorV("Invalid binary operator!");
+      Diagnostic::runDiagnostic(Diagnostic::token_error,
+                                "Invalid binary operator!");
   }
+  return nullptr;
 }
 
-llvm::Value *BinaryExprAST::codeGenAssignment(llvm::Value *RHS,
-                                              llvm::Value *LHS, TokenKind op) {
+llvm::Value *BinaryExprAST::codeGenAssignment() {
+  llvm::Value *leftVal = LHS->codeGen();
+  llvm::Value *rightVal = RHS->codeGen();
+
+  if (!leftVal || !rightVal)
+    Diagnostic::runDiagnostic(Diagnostic::type_error,
+                              "Could not evaluate expression!");
+
+  if (llvm::isa<llvm::Constant>(leftVal)) {
+    Diagnostic::runDiagnostic(Diagnostic::initialization_error,
+                              "Cannot re-assign variable declared const!");
+  }
   switch (op) {
     case equal:
-      return programRoot->getBuilder().CreateStore(LHS, RHS);
+      return programRoot->getBuilder().CreateStore(rightVal, leftVal);
     case plus_equal:
-      break;
+      return programRoot->getBuilder().CreateStore(
+          programRoot->getBuilder().CreateAdd(leftVal, rightVal), leftVal);
     case minus_equal:
-      break;
+      return programRoot->getBuilder().CreateStore(
+          programRoot->getBuilder().CreateSub(leftVal, rightVal), leftVal);
     case star_equal:
-      break;
+      return programRoot->getBuilder().CreateStore(
+          programRoot->getBuilder().CreateMul(leftVal, rightVal), leftVal);
     case slash_equal:
-      break;
+      return programRoot->getBuilder().CreateStore(
+          programRoot->getBuilder().CreateUDiv(leftVal, rightVal), leftVal);
     default:
       break;
   }
@@ -87,7 +115,8 @@ llvm::Value *VarExprAST::codeGen() {
       if ((GV = programRoot->getModule().getGlobalVariable(name))) {
 	break;
       } else {
-	return LogErrorV("Variable not found!");
+	Diagnostic::runDiagnostic(Diagnostic::unknwon_symbol_error,
+	                          "Error retrieving global variable!");
       }
     }
     case FUNC: {
@@ -96,7 +125,9 @@ llvm::Value *VarExprAST::codeGen() {
       } else if ((GV = programRoot->getModule().getGlobalVariable(name))) {
 	break;
       } else {
-	return LogErrorV("Variable not found!");
+	Diagnostic::runDiagnostic(
+	    Diagnostic::unknwon_symbol_error,
+	    "Error retrieving variable either function or global scoped!");
       }
     }
     case COND: {
@@ -107,19 +138,17 @@ llvm::Value *VarExprAST::codeGen() {
       } else if ((GV = programRoot->getModule().getGlobalVariable(name))) {
 	break;
       } else {
-	return LogErrorV("Variable not found!");
+	Diagnostic::runDiagnostic(Diagnostic::unknwon_symbol_error,
+	                          "Error retrieving variable conditionally, "
+	                          "function or global scoped!");
       }
     }
     default:
-      return LogErrorV("Error retrieving variable");
+      Diagnostic::runDiagnostic(Diagnostic::unknwon_symbol_error,
+                                "Error retrieving variable");
   }
   if (GV) return programRoot->getBuilder().CreateLoad(GV->getValueType(), GV);
-
-  if (llvm::isa<llvm::Constant>(val)) {
-    return val;
-  }
-  return programRoot->getBuilder().CreateLoad(
-      llvm::cast<llvm::AllocaInst>(val)->getAllocatedType(), val);
+  return val;
 }
 
 llvm::Value *CallExprAST::codeGen() {

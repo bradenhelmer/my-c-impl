@@ -11,6 +11,14 @@ llvm::Value *BlockStmtAST::codeGen() {
 }
 
 llvm::Value *ReturnStmtAST::codeGen() {
-  return programRoot->getBuilder().CreateRet(returnExpr ? returnExpr->codeGen()
-                                                        : nullptr);
+  if (returnExpr) {
+    llvm::Value *returnVal = returnExpr->codeGen();
+    if (llvm::AllocaInst *possibleAlloc =
+            llvm::dyn_cast<llvm::AllocaInst>(returnVal)) {
+      returnVal = programRoot->getBuilder().CreateLoad(
+          possibleAlloc->getAllocatedType(), possibleAlloc);
+    }
+    return programRoot->getBuilder().CreateRet(returnVal);
+  }
+  return programRoot->getBuilder().CreateRetVoid();
 };

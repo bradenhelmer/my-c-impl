@@ -58,8 +58,7 @@ class BinaryExprAST : public ExprAST {
   std::string getTypeString() const override { return "BinOpExp"; }
   void print(int indentation) const override;
   llvm::Value *codeGen() override;
-  llvm::Value *codeGenAssignment(llvm::Value *LHS, llvm::Value *RHS,
-                                 TokenKind op = equal);
+  llvm::Value *codeGenAssignment();
 };
 
 class VarExprAST : public ExprAST {

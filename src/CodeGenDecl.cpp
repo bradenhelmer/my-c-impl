@@ -45,7 +45,7 @@ llvm::Value *VarDeclAST::codeGen() {
 
 llvm::AllocaInst *VarDeclAST::allocVarDecl() {
   llvm::AllocaInst *allocation =
-      programRoot->getBuilder().CreateAlloca(llvmType);
+      programRoot->getBuilder().CreateAlloca(llvmType, nullptr, id.idStr);
   if (expr) {
     llvm::Value *exprVal = expr->codeGen();
     if (exprVal->getType() != llvmType)

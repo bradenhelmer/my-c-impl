@@ -13,7 +13,8 @@ class Diagnostic {
     parse_error,
     type_error,
     invalid_modifier_error,
-    initialization_error
+    initialization_error,
+    unknwon_symbol_error
   };
 
   static void runDiagnostic(DiagCode code, const std::string &message) {
@@ -28,7 +29,8 @@ class Diagnostic {
                          {syntax_error, "SYNTAX ERROR"},
                          {type_error, "TYPE ERROR"},
                          {invalid_modifier_error, "INVALID MODIFIER ERROR"},
-                         {initialization_error, "INITIALIZATION ERROR"}};
+                         {initialization_error, "INITIALIZATION ERROR"},
+                         {unknwon_symbol_error, "UNKNOWN SYMBOL ERROR"}};
 };
 
 #endif  // DIAGNOSTICS_H

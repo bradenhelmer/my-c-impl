@@ -34,7 +34,7 @@ dbgp:
 dirs:
 	mkdir -p ./$(BIN) ./$(OBJS_DIR)
 
-run: all
+run: lang
 	$(RUN_ARGS)
 
 print: all

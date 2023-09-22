@@ -12,6 +12,8 @@
 #define PRINT(X) std::cout << X << std::endl;
 #define DEBUG_HERE std::cout << "HERE" << std::endl;
 
+#define PRINT_MODULE programRoot->getModule().print(llvm::outs(), nullptr)
+
 #define INDENT_CHAR ' '
 #define LLVM_OUT(X) llvm::outs() << X
 #define LLVM_OUT_NL(X) \
